@@ -1,0 +1,905 @@
+{
+  "_metadata": {
+    "title": "Clinical Phase Transition Probabilities and Trial Costs Reference Data",
+    "description": "Comprehensive reference data for biotech DCF valuations including phase transition success rates and clinical trial costs by therapeutic area and indication",
+    "last_updated": "2026-01-19",
+    "sources": {
+      "BIO_QLS_2021": {
+        "title": "Clinical Development Success Rates and Contributing Factors 2011-2020",
+        "authors": "BIO, Informa Pharma Intelligence, QLS Advisors",
+        "year": 2021,
+        "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+        "notes": "Analysis of 12,728 clinical phase transitions from 9,704 drug development programs across 1,779 companies (Jan 2011 - Nov 2020). Primary source for success rates."
+      },
+      "Wong_2019": {
+        "title": "Estimation of clinical trial success rates and related parameters",
+        "authors": "Wong CH, Siah KW, Lo AW",
+        "journal": "Biostatistics",
+        "year": 2019,
+        "url": "https://doi.org/10.1093/biostatistics/kxx069",
+        "notes": "Analysis of 406,038 clinical trial entries from 2000-2015. Used for biomarker phase-specific multipliers."
+      },
+      "ASPE_2014": {
+        "title": "Examination of Clinical Trial Costs and Barriers for Drug Development",
+        "authors": "Eastern Research Group for ASPE/HHS",
+        "year": 2014,
+        "url": "https://aspe.hhs.gov/reports/examination-clinical-trial-costs-barriers-drug-development-0",
+        "notes": "Comprehensive study of clinical trial costs by phase and therapeutic area"
+      },
+      "DiMasi_2016": {
+        "title": "Innovation in the pharmaceutical industry: New estimates of R&D costs",
+        "authors": "DiMasi JA, Grabowski HG, Hansen RW",
+        "journal": "Journal of Health Economics",
+        "year": 2016,
+        "url": "https://doi.org/10.1016/j.jhealeco.2016.01.012",
+        "notes": "Landmark study estimating $2.6B total development cost per approved drug"
+      },
+      "Sertkaya_2016": {
+        "title": "Key cost drivers of pharmaceutical clinical trials in the United States",
+        "authors": "Sertkaya A, Wong HH, Jessup A, Beleche T",
+        "journal": "Clinical Trials",
+        "year": 2016,
+        "url": "https://doi.org/10.1177/1740774516677887",
+        "notes": "ASPE-commissioned study on clinical trial cost drivers"
+      }
+    }
+  },
+
+  "phase_transition_probabilities": {
+    "_description": "Success rates for transitioning between clinical development phases",
+    "_source_primary": "BIO_QLS_2021",
+    "_notes": "Values from BIO/QLS/Informa 2011-2020 analysis of 12,728 phase transitions. Phase II remains the largest hurdle with just 28.9% success.",
+
+    "overall_all_indications": {
+      "source": "BIO_QLS_2021",
+      "period": "2011-2020",
+      "sample_size": 12728,
+      "phase_1_to_2": 0.520,
+      "phase_2_to_3": 0.289,
+      "phase_3_to_approval": 0.578,
+      "nda_bla_to_approval": 0.906,
+      "overall_loa_from_phase_1": 0.079,
+      "overall_loa_from_phase_2": 0.151,
+      "overall_loa_from_phase_3": 0.524,
+      "notes": "Overall LOA of 7.9% from Phase I. Average 10.5 years from Phase I to approval."
+    },
+
+    "by_therapeutic_area": {
+      "_notes": "All data from BIO_QLS_2021 Figure 2 and Figure 5. Ordered by LOA from Phase I (highest to lowest).",
+
+      "hematology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 92, "phase_2": 106, "phase_3": 82, "nda_bla": 72},
+        "phase_1_to_2": 0.696,
+        "phase_2_to_3": 0.481,
+        "phase_3_to_approval": 0.768,
+        "nda_bla_to_approval": 0.931,
+        "overall_loa_from_phase_1": 0.239,
+        "overall_loa_from_phase_2": 0.344,
+        "overall_loa_from_phase_3": 0.715,
+        "notes": "Highest LOA (23.9%). Dominated by hemophilia research with extremely well-characterized biology."
+      },
+
+      "metabolic": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 136, "phase_2": 149, "phase_3": 66, "nda_bla": 48},
+        "phase_1_to_2": 0.618,
+        "phase_2_to_3": 0.450,
+        "phase_3_to_approval": 0.636,
+        "nda_bla_to_approval": 0.875,
+        "overall_loa_from_phase_1": 0.155,
+        "overall_loa_from_phase_2": 0.250,
+        "overall_loa_from_phase_3": 0.557
+      },
+
+      "infectious_disease": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 403, "phase_2": 414, "phase_3": 197, "nda_bla": 156},
+        "phase_1_to_2": 0.578,
+        "phase_2_to_3": 0.384,
+        "phase_3_to_approval": 0.640,
+        "nda_bla_to_approval": 0.929,
+        "overall_loa_from_phase_1": 0.132,
+        "overall_loa_from_phase_2": 0.228,
+        "overall_loa_from_phase_3": 0.594
+      },
+
+      "ophthalmology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 88, "phase_2": 200, "phase_3": 82, "nda_bla": 45},
+        "phase_1_to_2": 0.716,
+        "phase_2_to_3": 0.355,
+        "phase_3_to_approval": 0.512,
+        "nda_bla_to_approval": 0.911,
+        "overall_loa_from_phase_1": 0.119,
+        "overall_loa_from_phase_2": 0.166,
+        "overall_loa_from_phase_3": 0.467
+      },
+
+      "autoimmune_inflammation": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 413, "phase_2": 471, "phase_3": 219, "nda_bla": 202},
+        "phase_1_to_2": 0.552,
+        "phase_2_to_3": 0.314,
+        "phase_3_to_approval": 0.653,
+        "nda_bla_to_approval": 0.941,
+        "overall_loa_from_phase_1": 0.107,
+        "overall_loa_from_phase_2": 0.193,
+        "overall_loa_from_phase_3": 0.614
+      },
+
+      "allergy": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 55, "phase_2": 92, "phase_3": 34, "nda_bla": 20},
+        "phase_1_to_2": 0.564,
+        "phase_2_to_3": 0.283,
+        "phase_3_to_approval": 0.647,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.103,
+        "overall_loa_from_phase_2": 0.183,
+        "overall_loa_from_phase_3": 0.647
+      },
+
+      "gastroenterology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 45, "phase_2": 73, "phase_3": 35, "nda_bla": 33},
+        "phase_1_to_2": 0.467,
+        "phase_2_to_3": 0.342,
+        "phase_3_to_approval": 0.571,
+        "nda_bla_to_approval": 0.909,
+        "overall_loa_from_phase_1": 0.083,
+        "overall_loa_from_phase_2": 0.178,
+        "overall_loa_from_phase_3": 0.519,
+        "notes": "Excludes IBD which is classified under autoimmune"
+      },
+
+      "respiratory": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 179, "phase_2": 215, "phase_3": 62, "nda_bla": 45},
+        "phase_1_to_2": 0.559,
+        "phase_2_to_3": 0.219,
+        "phase_3_to_approval": 0.645,
+        "nda_bla_to_approval": 0.956,
+        "overall_loa_from_phase_1": 0.075,
+        "overall_loa_from_phase_2": 0.135,
+        "overall_loa_from_phase_3": 0.616
+      },
+
+      "psychiatry": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 150, "phase_2": 164, "phase_3": 71, "nda_bla": 57},
+        "phase_1_to_2": 0.527,
+        "phase_2_to_3": 0.268,
+        "phase_3_to_approval": 0.563,
+        "nda_bla_to_approval": 0.912,
+        "overall_loa_from_phase_1": 0.073,
+        "overall_loa_from_phase_2": 0.138,
+        "overall_loa_from_phase_3": 0.514
+      },
+
+      "endocrine": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 319, "phase_2": 293, "phase_3": 151, "nda_bla": 124},
+        "phase_1_to_2": 0.433,
+        "phase_2_to_3": 0.266,
+        "phase_3_to_approval": 0.662,
+        "nda_bla_to_approval": 0.863,
+        "overall_loa_from_phase_1": 0.066,
+        "overall_loa_from_phase_2": 0.152,
+        "overall_loa_from_phase_3": 0.571
+      },
+
+      "neurology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 516, "phase_2": 504, "phase_3": 226, "nda_bla": 165},
+        "phase_1_to_2": 0.477,
+        "phase_2_to_3": 0.268,
+        "phase_3_to_approval": 0.531,
+        "nda_bla_to_approval": 0.867,
+        "overall_loa_from_phase_1": 0.059,
+        "overall_loa_from_phase_2": 0.123,
+        "overall_loa_from_phase_3": 0.460,
+        "notes": "Phase II rate close to average, but Phase III and NDA/BLA underperform. Neurodegenerative diseases often progress to late-stage on biomarker data without clinical PoC."
+      },
+
+      "oncology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 1628, "phase_2": 1732, "phase_3": 495, "nda_bla": 324},
+        "phase_1_to_2": 0.488,
+        "phase_2_to_3": 0.246,
+        "phase_3_to_approval": 0.477,
+        "nda_bla_to_approval": 0.920,
+        "overall_loa_from_phase_1": 0.053,
+        "overall_loa_from_phase_2": 0.108,
+        "overall_loa_from_phase_3": 0.439,
+        "notes": "Largest segment (33% of all transitions) with third-lowest LOA. Marginally improved from 5.1% in 2006-2015."
+      },
+
+      "cardiovascular": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 214, "phase_2": 252, "phase_3": 105, "nda_bla": 80},
+        "phase_1_to_2": 0.500,
+        "phase_2_to_3": 0.210,
+        "phase_3_to_approval": 0.552,
+        "nda_bla_to_approval": 0.825,
+        "overall_loa_from_phase_1": 0.048,
+        "overall_loa_from_phase_2": 0.096,
+        "overall_loa_from_phase_3": 0.456,
+        "notes": "Low biologic penetration (1:3 ratio vs 1:1 in autoimmune). Large outcome trials drive long Phase III durations."
+      },
+
+      "urology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 22, "phase_2": 40, "phase_3": 13, "nda_bla": 13},
+        "phase_1_to_2": 0.409,
+        "phase_2_to_3": 0.150,
+        "phase_3_to_approval": 0.692,
+        "nda_bla_to_approval": 0.846,
+        "overall_loa_from_phase_1": 0.036,
+        "overall_loa_from_phase_2": 0.088,
+        "overall_loa_from_phase_3": 0.586,
+        "notes": "Lowest LOA (3.6%). Small sample size. Lowest Phase II success rate (15%)."
+      }
+    },
+
+    "oncology_subcategories": {
+      "_notes": "Oncology broken down by tumor type and treatment approach. From BIO_QLS_2021 Figure 7.",
+
+      "non_oncology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 2786, "phase_2": 3201, "phase_3": 1433, "nda_bla": 1129},
+        "phase_1_to_2": 0.539,
+        "phase_2_to_3": 0.312,
+        "phase_3_to_approval": 0.613,
+        "nda_bla_to_approval": 0.902,
+        "overall_loa_from_phase_1": 0.093,
+        "overall_loa_from_phase_2": 0.172,
+        "overall_loa_from_phase_3": 0.553
+      },
+
+      "oncology_all": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 1628, "phase_2": 1732, "phase_3": 495, "nda_bla": 324},
+        "phase_1_to_2": 0.488,
+        "phase_2_to_3": 0.246,
+        "phase_3_to_approval": 0.477,
+        "nda_bla_to_approval": 0.920,
+        "overall_loa_from_phase_1": 0.053,
+        "overall_loa_from_phase_2": 0.108,
+        "overall_loa_from_phase_3": 0.439
+      },
+
+      "hematologic_cancers": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 425, "phase_2": 449, "phase_3": 120, "nda_bla": 100},
+        "phase_1_to_2": 0.501,
+        "phase_2_to_3": 0.278,
+        "phase_3_to_approval": 0.600,
+        "nda_bla_to_approval": 0.900,
+        "overall_loa_from_phase_1": 0.075,
+        "overall_loa_from_phase_2": 0.150,
+        "overall_loa_from_phase_3": 0.540,
+        "notes": "Blood cancers. Higher success than solid tumors. Typically classified as rare diseases."
+      },
+
+      "solid_tumors": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 1145, "phase_2": 1261, "phase_3": 364, "nda_bla": 212},
+        "phase_1_to_2": 0.489,
+        "phase_2_to_3": 0.234,
+        "phase_3_to_approval": 0.429,
+        "nda_bla_to_approval": 0.929,
+        "overall_loa_from_phase_1": 0.046,
+        "overall_loa_from_phase_2": 0.093,
+        "overall_loa_from_phase_3": 0.398,
+        "notes": "Over 2x the transitions of hematologic but much lower LOA (4.6% vs 7.5%)."
+      },
+
+      "immuno_oncology": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 275, "phase_2": 244, "phase_3": 98, "nda_bla": 62},
+        "phase_1_to_2": 0.640,
+        "phase_2_to_3": 0.402,
+        "phase_3_to_approval": 0.490,
+        "nda_bla_to_approval": 0.984,
+        "overall_loa_from_phase_1": 0.124,
+        "overall_loa_from_phase_2": 0.194,
+        "overall_loa_from_phase_3": 0.482,
+        "notes": "IO drugs significantly outperform traditional oncology (12.4% vs 5.3% LOA). Phase II rate of 40.2% vs 24.6% overall oncology is key driver."
+      }
+    },
+
+    "rare_vs_chronic_disease": {
+      "_notes": "Comparison of rare diseases vs chronic high prevalence diseases. From BIO_QLS_2021 Figure 8. Oncology excluded from both groups.",
+
+      "rare_diseases_non_oncology": {
+        "source": "BIO_QLS_2021",
+        "definition": "Affects <200,000 patients in US or prevalence <1:2,000 in EU. Oncology excluded.",
+        "sample_sizes": {"phase_1": 380, "phase_2": 464, "phase_3": 240, "nda_bla": 172},
+        "phase_1_to_2": 0.674,
+        "phase_2_to_3": 0.446,
+        "phase_3_to_approval": 0.604,
+        "nda_bla_to_approval": 0.936,
+        "overall_loa_from_phase_1": 0.170,
+        "overall_loa_from_phase_2": 0.252,
+        "overall_loa_from_phase_3": 0.566,
+        "notes": "Nearly 3x the LOA of chronic diseases (17.0% vs 5.9%). 1,256 total transitions from 685 developers."
+      },
+
+      "chronic_high_prevalence": {
+        "source": "BIO_QLS_2021",
+        "definition": ">1 million patients affected in US. From CMS Chronic Conditions Data Warehouse list, excluding cancer.",
+        "sample_sizes": {"phase_1": 745, "phase_2": 737, "phase_3": 279, "nda_bla": 217},
+        "phase_1_to_2": 0.460,
+        "phase_2_to_3": 0.231,
+        "phase_3_to_approval": 0.595,
+        "nda_bla_to_approval": 0.926,
+        "overall_loa_from_phase_1": 0.059,
+        "overall_loa_from_phase_2": 0.127,
+        "overall_loa_from_phase_3": 0.551,
+        "notes": "16% of total transitions. Together with oncology (33%), these two groups comprise half the dataset with below-average LOAs."
+      },
+
+      "rare_diseases_oncology": {
+        "source": "BIO_QLS_2021",
+        "overall_loa_from_phase_1": 0.068,
+        "notes": "Rare oncology indications (43% of oncology) have higher LOA than non-rare oncology (6.8% vs 4.4%), driven by hematologic malignancies."
+      }
+    },
+
+    "by_drug_class_and_modality": {
+      "_notes": "Success rates by drug novelty and modality. From BIO_QLS_2021 Figures 9 and 10.",
+
+      "novel_drugs": {
+        "source": "BIO_QLS_2021",
+        "includes": ["NME", "biologic", "vaccine"],
+        "sample_sizes": {"phase_1": 3933, "phase_2": 4394, "phase_3": 1374, "nda_bla": 826},
+        "phase_1_to_2": 0.513,
+        "phase_2_to_3": 0.279,
+        "phase_3_to_approval": 0.529,
+        "nda_bla_to_approval": 0.896,
+        "overall_loa_from_phase_1": 0.068,
+        "overall_loa_from_phase_2": 0.132,
+        "overall_loa_from_phase_3": 0.474
+      },
+
+      "nme_small_molecules": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 2505, "phase_2": 2924, "phase_3": 869, "nda_bla": 505},
+        "phase_1_to_2": 0.506,
+        "phase_2_to_3": 0.256,
+        "phase_3_to_approval": 0.506,
+        "nda_bla_to_approval": 0.861,
+        "overall_loa_from_phase_1": 0.057,
+        "overall_loa_from_phase_2": 0.112,
+        "overall_loa_from_phase_3": 0.436
+      },
+
+      "biologics": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 1301, "phase_2": 1355, "phase_3": 462, "nda_bla": 294},
+        "phase_1_to_2": 0.525,
+        "phase_2_to_3": 0.324,
+        "phase_3_to_approval": 0.567,
+        "nda_bla_to_approval": 0.946,
+        "overall_loa_from_phase_1": 0.091,
+        "overall_loa_from_phase_2": 0.174,
+        "overall_loa_from_phase_3": 0.536
+      },
+
+      "vaccines": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 127, "phase_2": 115, "phase_3": 43, "nda_bla": 27},
+        "phase_1_to_2": 0.520,
+        "phase_2_to_3": 0.322,
+        "phase_3_to_approval": 0.581,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.097,
+        "overall_loa_from_phase_2": 0.187,
+        "overall_loa_from_phase_3": 0.581
+      },
+
+      "off_patent": {
+        "source": "BIO_QLS_2021",
+        "includes": ["non-NME", "biosimilar"],
+        "sample_sizes": {"phase_1": 455, "phase_2": 527, "phase_3": 552, "nda_bla": 627},
+        "phase_1_to_2": 0.604,
+        "phase_2_to_3": 0.376,
+        "phase_3_to_approval": 0.703,
+        "nda_bla_to_approval": 0.919,
+        "overall_loa_from_phase_1": 0.147,
+        "overall_loa_from_phase_2": 0.243,
+        "overall_loa_from_phase_3": 0.646,
+        "notes": "2x the LOA of novel drugs (14.7% vs 6.8%). Relies on established science."
+      },
+
+      "non_nme": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 395, "phase_2": 523, "phase_3": 471, "nda_bla": 495},
+        "phase_1_to_2": 0.575,
+        "phase_2_to_3": 0.375,
+        "phase_3_to_approval": 0.675,
+        "nda_bla_to_approval": 0.915,
+        "overall_loa_from_phase_1": 0.133,
+        "overall_loa_from_phase_2": 0.232,
+        "overall_loa_from_phase_3": 0.618
+      },
+
+      "biosimilars": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 60, "phase_2": 4, "phase_3": 81, "nda_bla": 132},
+        "phase_1_to_2": 0.800,
+        "phase_2_to_3": 0.500,
+        "phase_3_to_approval": 0.864,
+        "nda_bla_to_approval": 0.932,
+        "overall_loa_from_phase_1": 0.322,
+        "overall_loa_from_phase_2": 0.403,
+        "overall_loa_from_phase_3": 0.805,
+        "notes": "Highest LOA (32.2%). Small Phase II sample due to abbreviated pathways."
+      }
+    },
+
+    "by_modality_detailed": {
+      "_notes": "Detailed modality breakdown. From BIO_QLS_2021 Figure 10. Ordered by LOA from Phase I.",
+
+      "car_t": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 43, "phase_2": 17, "phase_3": 3, "nda_bla": 4},
+        "phase_1_to_2": 0.442,
+        "phase_2_to_3": 0.588,
+        "phase_3_to_approval": 0.667,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.173,
+        "overall_loa_from_phase_2": 0.392,
+        "overall_loa_from_phase_3": 0.667,
+        "notes": "Highest LOA among modalities (17.3%). 3 separate CAR-Ts approved since 2017."
+      },
+
+      "sirna_rnai": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 40, "phase_2": 38, "phase_3": 6, "nda_bla": 3},
+        "phase_1_to_2": 0.700,
+        "phase_2_to_3": 0.289,
+        "phase_3_to_approval": 0.667,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.135,
+        "overall_loa_from_phase_2": 0.193,
+        "overall_loa_from_phase_3": 0.667,
+        "notes": "Second highest LOA (13.5%). 3 approvals as of Dec 2020, first in 2018."
+      },
+
+      "monoclonal_antibody": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 804, "phase_2": 740, "phase_3": 310, "nda_bla": 282},
+        "phase_1_to_2": 0.547,
+        "phase_2_to_3": 0.341,
+        "phase_3_to_approval": 0.681,
+        "nda_bla_to_approval": 0.954,
+        "overall_loa_from_phase_1": 0.121,
+        "overall_loa_from_phase_2": 0.221,
+        "overall_loa_from_phase_3": 0.649,
+        "notes": "Mature modality with considerably improved LOA vs older drug classes."
+      },
+
+      "adcs": {
+        "source": "BIO_QLS_2021",
+        "definition": "Antibody-drug conjugates",
+        "sample_sizes": {"phase_1": 103, "phase_2": 53, "phase_3": 16, "nda_bla": 12},
+        "phase_1_to_2": 0.417,
+        "phase_2_to_3": 0.415,
+        "phase_3_to_approval": 0.625,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.108,
+        "overall_loa_from_phase_2": 0.259,
+        "overall_loa_from_phase_3": 0.625
+      },
+
+      "gene_therapy": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 27, "phase_2": 57, "phase_3": 10, "nda_bla": 2},
+        "phase_1_to_2": 0.519,
+        "phase_2_to_3": 0.386,
+        "phase_3_to_approval": 0.500,
+        "nda_bla_to_approval": 1.000,
+        "overall_loa_from_phase_1": 0.100,
+        "overall_loa_from_phase_2": 0.193,
+        "overall_loa_from_phase_3": 0.500
+      },
+
+      "protein": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 246, "phase_2": 288, "phase_3": 149, "nda_bla": 117},
+        "phase_1_to_2": 0.516,
+        "phase_2_to_3": 0.330,
+        "phase_3_to_approval": 0.617,
+        "nda_bla_to_approval": 0.897,
+        "overall_loa_from_phase_1": 0.094,
+        "overall_loa_from_phase_2": 0.183,
+        "overall_loa_from_phase_3": 0.554
+      },
+
+      "peptide": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 234, "phase_2": 218, "phase_3": 100, "nda_bla": 67},
+        "phase_1_to_2": 0.530,
+        "phase_2_to_3": 0.284,
+        "phase_3_to_approval": 0.600,
+        "nda_bla_to_approval": 0.881,
+        "overall_loa_from_phase_1": 0.080,
+        "overall_loa_from_phase_2": 0.150,
+        "overall_loa_from_phase_3": 0.528
+      },
+
+      "small_molecule": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 2308, "phase_2": 2896, "phase_3": 1118, "nda_bla": 849},
+        "phase_1_to_2": 0.526,
+        "phase_2_to_3": 0.280,
+        "phase_3_to_approval": 0.569,
+        "nda_bla_to_approval": 0.895,
+        "overall_loa_from_phase_1": 0.075,
+        "overall_loa_from_phase_2": 0.143,
+        "overall_loa_from_phase_3": 0.509,
+        "notes": "57% of all transitions. Modest LOA despite dominance."
+      },
+
+      "antisense": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 69, "phase_2": 70, "phase_3": 14, "nda_bla": 9},
+        "phase_1_to_2": 0.609,
+        "phase_2_to_3": 0.200,
+        "phase_3_to_approval": 0.643,
+        "nda_bla_to_approval": 0.667,
+        "overall_loa_from_phase_1": 0.052,
+        "overall_loa_from_phase_2": 0.086,
+        "overall_loa_from_phase_3": 0.429,
+        "notes": "Lowest LOA among modalities (5.2%). Low NDA/BLA approval rate (66.7%)."
+      }
+    },
+
+    "biomarker_impact": {
+      "_notes": "Impact of patient preselection biomarkers. From BIO_QLS_2021 Figure 11. 767 transitions (6%) incorporated biomarkers.",
+
+      "with_preselection_biomarkers": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 414, "phase_2": 149, "phase_3": 129, "nda_bla": 75},
+        "phase_1_to_2": 0.524,
+        "phase_2_to_3": 0.463,
+        "phase_3_to_approval": 0.682,
+        "nda_bla_to_approval": 0.960,
+        "overall_loa_from_phase_1": 0.159,
+        "overall_loa_from_phase_2": 0.303,
+        "overall_loa_from_phase_3": 0.655,
+        "notes": "2x the LOA of programs without biomarkers (15.9% vs 7.6%)."
+      },
+
+      "without_biomarkers": {
+        "source": "BIO_QLS_2021",
+        "sample_sizes": {"phase_1": 4000, "phase_2": 4784, "phase_3": 1799, "nda_bla": 1378},
+        "phase_1_to_2": 0.520,
+        "phase_2_to_3": 0.283,
+        "phase_3_to_approval": 0.571,
+        "nda_bla_to_approval": 0.903,
+        "overall_loa_from_phase_1": 0.076,
+        "overall_loa_from_phase_2": 0.146,
+        "overall_loa_from_phase_3": 0.515
+      },
+
+      "phase_specific_impact": {
+        "source": "BIO_QLS_2021",
+        "notes": "Biomarker benefit varies by phase: no discernible difference at Phase I (52.4% vs 52.0%). Greatest benefit at Phase II (46.3% vs 28.3%). Smaller but significant benefit at Phase III (68.2% vs 57.1%)."
+      },
+
+      "phase_specific_multipliers_wong": {
+        "source": "Wong_2019",
+        "notes": "Original Wong et al. phase-specific multipliers based on 2000-2015 data. Use for adjustments when BIO data unavailable.",
+        "phase_1_to_2": 1.28,
+        "phase_2_to_3": 1.44,
+        "phase_3_to_approval": 1.02,
+        "overall_loa_multiplier": 1.87,
+        "application_method": "Apply multipliers to baseline therapeutic area rates. For validated biomarkers (e.g., HER2+, EGFR+, PD-L1+), use full multipliers. For exploratory biomarkers, use 50-75% of effect.",
+        "data_limitation": "Based on oncology data only. Generalizability to other therapeutic areas is uncertain."
+      }
+    }
+  },
+
+  "development_timelines": {
+    "_description": "Drug development timelines by phase and therapeutic area",
+    "_source_primary": "BIO_QLS_2021",
+    "_notes": "Based on 6,151 successful phase transitions from 2011-2020.",
+
+    "overall_average": {
+      "source": "BIO_QLS_2021",
+      "total_years_phase_1_to_approval": 10.5,
+      "phase_1_duration_years": 2.3,
+      "phase_2_duration_years": 3.6,
+      "phase_3_duration_years": 3.3,
+      "regulatory_duration_years": 1.3,
+      "notes": "Longer timelines correlate with lower LOA. Disease areas with above-average LOA tend to have shorter development times."
+    },
+
+    "by_therapeutic_area": {
+      "_notes": "From BIO_QLS_2021 Figure 17. Ordered by total duration (shortest to longest).",
+
+      "allergy": {
+        "phase_1_years": 1.5, "phase_2_years": 3.8, "phase_3_years": 2.9, "regulatory_years": 1.1,
+        "total_years": 9.2
+      },
+      "metabolic": {
+        "phase_1_years": 2.0, "phase_2_years": 3.2, "phase_3_years": 3.1, "regulatory_years": 1.2,
+        "total_years": 9.5
+      },
+      "infectious_disease": {
+        "phase_1_years": 2.0, "phase_2_years": 3.5, "phase_3_years": 3.1, "regulatory_years": 1.2,
+        "total_years": 9.7
+      },
+      "ophthalmology": {
+        "phase_1_years": 2.1, "phase_2_years": 2.9, "phase_3_years": 3.4, "regulatory_years": 1.3,
+        "total_years": 9.8
+      },
+      "autoimmune": {
+        "phase_1_years": 2.1, "phase_2_years": 3.6, "phase_3_years": 3.2, "regulatory_years": 1.1,
+        "total_years": 10.0
+      },
+      "oncology": {
+        "phase_1_years": 2.7, "phase_2_years": 3.7, "phase_3_years": 3.1, "regulatory_years": 0.8,
+        "total_years": 10.3,
+        "notes": "Longest Phase I (2.7 years) due to basket trial designs. Shortest regulatory (0.8 years) due to expedited pathways and RTOR."
+      },
+      "respiratory": {
+        "phase_1_years": 2.1, "phase_2_years": 3.5, "phase_3_years": 3.3, "regulatory_years": 1.5,
+        "total_years": 10.4
+      },
+      "psychiatry": {
+        "phase_1_years": 2.3, "phase_2_years": 3.4, "phase_3_years": 2.8, "regulatory_years": 1.8,
+        "total_years": 10.4
+      },
+      "endocrine": {
+        "phase_1_years": 1.8, "phase_2_years": 3.4, "phase_3_years": 3.7, "regulatory_years": 1.8,
+        "total_years": 10.7
+      },
+      "hematology": {
+        "phase_1_years": 2.2, "phase_2_years": 3.4, "phase_3_years": 3.6, "regulatory_years": 1.5,
+        "total_years": 10.7
+      },
+      "gastroenterology": {
+        "phase_1_years": 1.6, "phase_2_years": 3.9, "phase_3_years": 3.9, "regulatory_years": 1.4,
+        "total_years": 10.8
+      },
+      "neurology": {
+        "phase_1_years": 2.1, "phase_2_years": 3.7, "phase_3_years": 3.7, "regulatory_years": 1.6,
+        "total_years": 11.1
+      },
+      "cardiovascular": {
+        "phase_1_years": 2.4, "phase_2_years": 3.8, "phase_3_years": 4.2, "regulatory_years": 1.2,
+        "total_years": 11.5,
+        "notes": "Longest Phase III (4.2 years) due to large outcome studies and long-term endpoint evaluation."
+      },
+      "urology": {
+        "phase_1_years": 2.7, "phase_2_years": 5.0, "phase_3_years": 2.9, "regulatory_years": 1.6,
+        "total_years": 12.2,
+        "notes": "Longest overall duration (12.2 years). Longest Phase II (5.0 years, n=6)."
+      }
+    }
+  },
+
+  "clinical_trial_costs": {
+    "_description": "Clinical trial costs by phase and therapeutic area in USD millions (unless otherwise noted)",
+    "_source_primary": "ASPE_2014, DiMasi_2016",
+    "_notes": "Costs vary significantly based on trial design, geography, patient population, and endpoints. ASPE 2014 costs should be inflation-adjusted (~89% increase to 2026 dollars using 5% annual inflation).",
+
+    "average_costs_by_phase": {
+      "source": "ASPE_2014",
+      "base_year": 2014,
+      "inflation_factor_to_2026": 1.89,
+      "phase_1": {
+        "cost_2014_millions": 3.8,
+        "cost_2026_millions": 7.2,
+        "range_2026_millions": [2, 10],
+        "average_patients": 39
+      },
+      "phase_2": {
+        "cost_2014_millions": 13.35,
+        "cost_2026_millions": 25.2,
+        "range_2026_millions": [13, 40],
+        "average_patients": 143
+      },
+      "phase_3": {
+        "cost_2014_millions": 19.89,
+        "cost_2026_millions": 37.6,
+        "range_2026_millions": [40, 200],
+        "average_patients": 479,
+        "notes": "ASPE average underestimates large pivotal trials. Oncology Phase III often exceeds $50M."
+      },
+      "regulatory_approval": {
+        "cost_millions": 2.5,
+        "range_millions": [1, 5]
+      }
+    },
+
+    "per_patient_costs_by_therapeutic_area": {
+      "source": "Industry estimates 2024",
+      "_units": "USD per patient",
+      "oncology": {
+        "phase_1": 152000,
+        "phase_2": 130500,
+        "phase_3": 124800,
+        "notes": "Highest cost therapeutic area. Complex protocols, specialized monitoring."
+      },
+      "neurology": {
+        "phase_1": 158000,
+        "phase_2": 139200,
+        "phase_3": 122105,
+        "notes": "Long trial durations, complex endpoints, imaging requirements."
+      },
+      "cardiovascular": {
+        "phase_1": 135000,
+        "phase_2": 127000,
+        "phase_3": 121000
+      },
+      "psychiatry": {
+        "phase_1": 139000,
+        "phase_2": 125700,
+        "phase_3": 118000
+      },
+      "respiratory": {
+        "phase_1": 127800,
+        "phase_2": 121200,
+        "phase_3": 116940
+      },
+      "infectious_disease": {
+        "phase_1": 122000,
+        "phase_2": 119500,
+        "phase_3": 111100
+      },
+      "dermatology": {
+        "phase_1": 110000,
+        "phase_2": 104000,
+        "phase_3": 99800,
+        "notes": "Lowest cost therapeutic area."
+      }
+    },
+
+    "by_modality_cost_multipliers": {
+      "source": "Industry estimates",
+      "small_molecule": 1.0,
+      "biologic": 1.5,
+      "cell_therapy": 3.0,
+      "gene_therapy": 4.0,
+      "notes": "Multipliers relative to small molecule baseline. Cell/gene therapy costs driven by manufacturing complexity."
+    }
+  },
+
+  "indication_specific_data": {
+    "_description": "Detailed data for specific high-value indications",
+
+    "alzheimers_disease": {
+      "therapeutic_area": "neurology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021, industry analyses",
+        "phase_1_to_2": 0.65,
+        "phase_2_to_3": 0.25,
+        "phase_3_to_approval": 0.30,
+        "overall_loa_from_phase_1": 0.05,
+        "notes": "Among lowest success rates. Long trial durations, complex endpoints, high placebo response."
+      }
+    },
+
+    "breast_cancer": {
+      "therapeutic_area": "oncology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021",
+        "phase_1_to_2": 0.60,
+        "phase_2_to_3": 0.40,
+        "phase_3_to_approval": 0.50,
+        "overall_loa_from_phase_1": 0.10,
+        "notes": "Above average for oncology due to well-defined biomarkers (HER2, HR status)"
+      }
+    },
+
+    "non_small_cell_lung_cancer": {
+      "therapeutic_area": "oncology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021",
+        "phase_1_to_2": 0.55,
+        "phase_2_to_3": 0.35,
+        "phase_3_to_approval": 0.45,
+        "overall_loa_from_phase_1": 0.07,
+        "notes": "Improved with targeted therapies (EGFR, ALK) and immunotherapy"
+      }
+    },
+
+    "pancreatic_cancer": {
+      "therapeutic_area": "oncology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021",
+        "overall_loa_from_phase_1": 0.011,
+        "notes": "Minimum LOA in oncology (1.1%, n=275). Extremely challenging indication."
+      }
+    },
+
+    "alimentary_cancers": {
+      "therapeutic_area": "oncology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021",
+        "overall_loa_from_phase_1": 0.152,
+        "notes": "Maximum LOA in oncology (15.2%, n=33). Small sample size."
+      }
+    },
+
+    "pd1_pdl1_immunotherapy": {
+      "therapeutic_area": "oncology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021 (Part 2)",
+        "overall_loa_from_phase_1": 0.239,
+        "notes": "PD-1/PD-L1 immunotherapies tremendously successful from Phase I (23.9%, n=71). Other immunotherapies much less successful (1.9%, n=945)."
+      }
+    },
+
+    "hemophilia_a": {
+      "therapeutic_area": "hematology",
+      "phase_transition_probabilities": {
+        "source": "BIO_QLS_2021",
+        "phase_2_to_3": 1.00,
+        "overall_success": "32 of 34 phase transitions successful",
+        "notes": "Extremely well-characterized biology. 100% Phase II success rate (n=6)."
+      }
+    }
+  },
+
+  "adjustments_and_factors": {
+    "_description": "Factors that can adjust baseline probabilities",
+
+    "breakthrough_therapy_designation": {
+      "source": "BIO_QLS_2021 (Part 2)",
+      "approval_probability_increase": 0.206,
+      "notes": "Top positive feature in ML analysis. +20.6% contribution to POA above baseline."
+    },
+
+    "orphan_drug_designation": {
+      "approval_rate_multiplier": 1.3,
+      "notes": "Smaller trial sizes, expedited pathways, higher success"
+    },
+
+    "prior_approval_other_indication": {
+      "source": "BIO_QLS_2021 (Part 2)",
+      "approval_probability_increase": 0.036,
+      "notes": "+3.6% contribution. Controlled manufacturing, established safety profile."
+    },
+
+    "first_in_class": {
+      "success_rate_multiplier": 0.8,
+      "notes": "Higher risk due to novel mechanism"
+    },
+
+    "validated_target": {
+      "success_rate_multiplier": 1.3,
+      "notes": "Target previously validated by approved drug"
+    },
+
+    "sponsor_track_record": {
+      "source": "BIO_QLS_2021 (Part 2)",
+      "notes": "Positive correlation between sponsor's prior successful phase transitions and future success. Associated with operational experience in trials and regulatory navigation."
+    }
+  },
+
+  "ml_predictive_factors": {
+    "_description": "Top features predicting clinical success from QLS machine learning analysis",
+    "_source": "BIO_QLS_2021 Part 2",
+    "_notes": "Ranked by feature importance across 200+ variables analyzed",
+
+    "top_predictive_factors": [
+      {"rank": 1, "factor": "Indication", "notes": "Consistently ranked top variable across all phases. Success varies substantially within therapeutic areas."},
+      {"rank": 2, "factor": "Biological target", "notes": "Target validation status significantly impacts success."},
+      {"rank": 3, "factor": "Drug modality", "notes": "mAbs 5.9% LOA in oncology vs other modalities."},
+      {"rank": 4, "factor": "Lead indication status", "notes": "Lead indications may have higher success if follow-on indications fail."},
+      {"rank": 5, "factor": "Prior approval for another indication", "notes": "Established manufacturing and safety profile."},
+      {"rank": 6, "factor": "Sponsor has prior success in therapeutic area", "notes": "Track record correlates with future success."},
+      {"rank": 7, "factor": "Trial outcome (primary endpoints met)", "notes": "Significant association with late-stage success."},
+      {"rank": 8, "factor": "Fast track designation", "notes": "FDA expedited pathway."},
+      {"rank": 9, "factor": "Breakthrough therapy designation", "notes": "+20.6% contribution to POA."},
+      {"rank": 10, "factor": "Orphan drug designation", "notes": "Regulatory incentives and smaller trials."},
+      {"rank": 11, "factor": "Patient preselection biomarkers", "notes": "2x LOA improvement, especially at Phase II."}
+    ]
+  }
+}

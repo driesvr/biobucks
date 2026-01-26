@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioBucks - DCF Valuations</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>BioBucks</h1>
+                <p class="subtitle">DCF Valuation Parameters Viewer</p>
+            </div>
+            <div class="theme-toggle" onclick="Theme.toggle()" title="Toggle theme">
+                <div class="theme-icon light-icon"><i class="fa-solid fa-sun"></i></div>
+                <div class="theme-icon dark-icon"><i class="fa-solid fa-moon"></i></div>
+            </div>
+        </header>
+        <div id="app">
+            <div class="loading">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2 class="modal-title">Edit Parameter</h2>
+            <form id="editForm">
+                <div class="form-group">
+                    <label class="form-label">Value</label>
+                    <input type="text" id="editValue" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Source</label>
+                    <input type="text" id="editSource" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL (optional)</label>
+                    <input type="url" id="editUrl" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Explanation</label>
+                    <textarea id="editExplanation" class="form-input" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confidence</label>
+                    <select id="editConfidence" class="form-input">
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="App.closeEditModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management
+        const Theme = {
+            init() {
+                // Load saved theme or default to light
+                const savedTheme = localStorage.getItem('biobucks-theme') || 'light';
+                this.setTheme(savedTheme);
+            },
+
+            toggle() {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                this.setTheme(newTheme);
+            },
+
+            setTheme(themeName) {
+                // Set data-theme attribute on document element
+                document.documentElement.setAttribute('data-theme', themeName);
+
+                // Save to localStorage
+                localStorage.setItem('biobucks-theme', themeName);
+
+                // Update icon states
+                const lightIcon = document.querySelector('.light-icon');
+                const darkIcon = document.querySelector('.dark-icon');
+
+                if (lightIcon && darkIcon) {
+                    if (themeName === 'light') {
+                        lightIcon.classList.add('active');
+                        lightIcon.classList.remove('inactive');
+                        darkIcon.classList.add('inactive');
+                        darkIcon.classList.remove('active');
+                    } else {
+                        darkIcon.classList.add('active');
+                        darkIcon.classList.remove('inactive');
+                        lightIcon.classList.add('inactive');
+                        lightIcon.classList.remove('active');
+                    }
+                }
+            }
+        };
+
+        // Initialize theme on page load
+        Theme.init();
+
+        // Simple router and state management
+        const App = {
+            currentView: 'list',
+            currentValuationId: null,
+            valuations: [],
+            currentValuation: null,
+            editingParam: null,
+            dcfResults: null,
+
+            init() {
+                this.handleRoute();
+                window.addEventListener('popstate', () => this.handleRoute());
+
+                // Set up edit form submission
+                document.getElementById('editForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveEdit();
+                });
+            },
+
+            handleRoute() {
+                const path = window.location.hash.slice(1) || '/';
+                const parts = path.split('/').filter(p => p);
+
+                if (parts.length === 0) {
+                    this.showList();
+                } else if (parts[0] === 'valuation' && parts[1]) {
+                    this.showValuation(parts[1]);
+                } else {
+                    this.showList();
+                }
+            },
+
+            navigate(path) {
+                window.location.hash = path;
+            },
+
+            async showList() {
+                this.currentView = 'list';
+                this.render('<div class="loading">Loading valuations...</div>');
+
+                try {
+                    const response = await fetch('/api/valuations');
+                    if (!response.ok) throw new Error('Failed to fetch valuations');
+
+                    this.valuations = await response.json();
+                    this.renderList();
+                } catch (error) {
+                    this.render(`<div class="error">Error loading valuations: ${error.message}</div>`);
+                }
+            },
+
+            async showValuation(id) {
+                this.currentView = 'valuation';
+                this.currentValuationId = id;
+                this.render('<div class="loading">Loading valuation...</div>');
+
+                try {
+                    const response = await fetch(`/api/valuations/${id}`);
+                    if (!response.ok) throw new Error('Failed to fetch valuation');
+
+                    this.currentValuation = await response.json();
+                    await this.calculateDCF();
+                    this.renderValuation();
+                } catch (error) {
+                    this.render(`<div class="error">Error loading valuation: ${error.message}</div>`);
+                }
+            },
+
+            async calculateDCF() {
+                if (!this.currentValuation || !this.currentValuationId) return;
+
+                try {
+                    const response = await fetch(`/api/valuations/${this.currentValuationId}/dcf`);
+                    if (!response.ok) throw new Error('Failed to calculate DCF');
+
+                    this.dcfResults = await response.json();
+                } catch (error) {
+                    console.error('Error calculating DCF:', error);
+                    this.dcfResults = null;
+                }
+            },
+
+            async recalculateDCF() {
+                // Called after parameter edits
+                await this.calculateDCF();
+                this.renderValuation();
+            },
+
+            // Old client-side DCF calculation removed - now using server-side Python calculation
+
+            render(html) {
+                document.getElementById('app').innerHTML = html;
+            },
+
+            renderList() {
+                if (this.valuations.length === 0) {
+                    this.render(`
+                        <div class="empty-state">
+                            <div class="empty-state-icon"><i class="fa-solid fa-chart-bar"></i></div>
+                            <div class="empty-state-title">No valuations found</div>
+                            <div class="empty-state-text">
+                                Use the /biobucks skill to generate DCF parameters.<br>
+                                JSON files will be saved to the valuations/ directory.
+                            </div>
+                        </div>
+                    `);
+                    return;
+                }
+
+                const cardsHtml = this.valuations.map(v => `
+                    <div class="card" onclick="App.navigate('/valuation/${v.id}')">
+                        <button class="card-delete-btn" onclick="event.stopPropagation(); App.confirmDelete('${v.id}', '${this.escapeHtml(v.assetName).replace(/'/g, "\\'")}');" title="Delete valuation">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                        <div class="card-title">${this.escapeHtml(v.assetName)}</div>
+                        <div class="card-meta"><strong>Area:</strong> ${this.escapeHtml(v.therapeuticArea)}</div>
+                        <div class="card-meta"><strong>File:</strong> ${this.escapeHtml(v.filename)}</div>
+                        <div class="card-meta"><strong>Generated:</strong> ${this.formatDate(v.generatedDate)}</div>
+                    </div>
+                `).join('');
+
+                this.render(`<div class="cards-grid">${cardsHtml}</div>`);
+            },
+
+            confirmDelete(id, assetName) {
+                if (confirm(`Are you sure you want to delete "${assetName}"?\n\nThis action cannot be undone.`)) {
+                    this.deleteValuation(id);
+                }
+            },
+
+            async deleteValuation(id) {
+                try {
+                    const response = await fetch(`/api/valuations/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to delete valuation');
+                    }
+
+                    // Refresh the list
+                    await this.showList();
+                } catch (error) {
+                    alert(`Error deleting valuation: ${error.message}`);
+                    console.error('Delete error:', error);
+                }
+            },
+
+            shouldShowPhase(currentStage, targetPhase) {
+                const stageOrder = {
+                    'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
+                    'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
+                    'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
+                    'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
+                    'registration ready': 4, 'approval': 4,
+                    'approved': 5
+                };
+
+                const phaseValues = {
+                    'phaseI': 1,
+                    'phaseII': 2,
+                    'phaseIII': 3,
+                    'approval': 4
+                };
+
+                const currentStageValue = stageOrder[currentStage.toLowerCase()] ?? 0;
+                const targetPhaseValue = phaseValues[targetPhase];
+
+                // Show phase if we are currently in it or haven't reached it yet
+                return currentStageValue <= targetPhaseValue;
+            },
+
+            renderDevelopmentTimelineSection(v) {
+                const currentStage = (v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready').toLowerCase();
+                const stageOrder = {
+                    'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
+                    'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
+                    'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
+                    'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
+                    'registration ready': 4, 'approval': 4,
+                    'approved': 5
+                };
+                const currentStageValue = stageOrder[currentStage] ?? 0;
+
+                const phases = [];
+                if (currentStageValue <= 1 && v.developmentTimeline.phaseIDuration) {
+                    phases.push({ label: 'Phase I Duration', param: v.developmentTimeline.phaseIDuration, field: 'phaseIDuration' });
+                }
+                if (currentStageValue <= 2 && v.developmentTimeline.phaseIIDuration) {
+                    phases.push({ label: 'Phase II Duration', param: v.developmentTimeline.phaseIIDuration, field: 'phaseIIDuration' });
+                }
+                if (currentStageValue <= 3 && v.developmentTimeline.phaseIIIDuration) {
+                    phases.push({ label: 'Phase III Duration', param: v.developmentTimeline.phaseIIIDuration, field: 'phaseIIIDuration' });
+                }
+                if (currentStageValue <= 4 && v.developmentTimeline.approvalDuration) {
+                    phases.push({ label: 'Approval Duration', param: v.developmentTimeline.approvalDuration, field: 'approvalDuration' });
+                }
+
+                const paramsHtml = phases.map(p =>
+                    this.renderParam(p.label, p.param, 'developmentTimeline', p.field)
+                ).join('');
+
+                // Calculate total
+                let totalYears = 0;
+                phases.forEach(p => {
+                    const val = typeof p.param.value === 'string' ? p.param.value.replace(/\s/g, '') : p.param.value;
+                    totalYears += parseFloat(val) || 0;
+                });
+
+                return `
+                    <div class="section">
+                        <h3 class="section-title">Development Timeline</h3>
+                        <div class="param-grid">
+                            ${paramsHtml}
+                            <div class="param-item">
+                                <div class="param-label">Total Years to Approval</div>
+                                <div class="param-value">${totalYears.toFixed(1)} years</div>
+                                <div class="param-meta">Sum of all phase durations</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderClinicalTrialCostsSection(v) {
+                const currentStage = v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready';
+                const phases = [
+                    { key: 'phaseI', field: 'phaseI', label: 'Phase I', param: v.clinicalTrialCosts.phaseI },
+                    { key: 'phaseII', field: 'phaseII', label: 'Phase II', param: v.clinicalTrialCosts.phaseII },
+                    { key: 'phaseIII', field: 'phaseIII', label: 'Phase III', param: v.clinicalTrialCosts.phaseIII },
+                    { key: 'approval', field: 'approval', label: 'Approval/Regulatory', param: v.clinicalTrialCosts.approval }
+                ];
+
+                const phasesToShow = phases.filter(p => this.shouldShowPhase(currentStage, p.key));
+                if (phasesToShow.length === 0) return '';
+
+                const paramsHtml = phasesToShow.map(p =>
+                    this.renderParam(p.label, p.param, 'clinicalTrialCosts', p.field)
+                ).join('');
+
+                return `
+                    <div class="section">
+                        <h3 class="section-title">Clinical Trial Costs</h3>
+                        <div class="param-grid">
+                            ${paramsHtml}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderProbabilityOfSuccessSection(v) {
+                const currentStage = v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready';
+                const phases = [
+                    { key: 'phaseI', field: 'phaseI', label: 'Phase I', param: v.probabilityOfSuccess.phaseI },
+                    { key: 'phaseII', field: 'phaseII', label: 'Phase II', param: v.probabilityOfSuccess.phaseII },
+                    { key: 'phaseIII', field: 'phaseIII', label: 'Phase III', param: v.probabilityOfSuccess.phaseIII },
+                    { key: 'approval', field: 'approval', label: 'Approval', param: v.probabilityOfSuccess.approval }
+                ];
+
+                const phasesToShow = phases.filter(p => this.shouldShowPhase(currentStage, p.key));
+                if (phasesToShow.length === 0) return '';
+
+                const paramsHtml = phasesToShow.map(p =>
+                    this.renderParam(p.label, p.param, 'probabilityOfSuccess', p.field)
+                ).join('');
+
+                // Calculate cumulative PoS dynamically from current values
+                const cumulativePoS = this.calculateCumulativePoS(v, currentStage);
+
+                return `
+                    <div class="section">
+                        <h3 class="section-title">Probability of Success</h3>
+                        <div class="param-grid">
+                            ${paramsHtml}
+                            ${this.renderDynamicCumulativeRisk(phasesToShow, cumulativePoS)}
+                        </div>
+                    </div>
+                `;
+            },
+
+            calculateCumulativePoS(v, currentStage) {
+                // Use DCF results if available (most accurate)
+                if (this.dcfResults && this.dcfResults.cumulativePoS !== undefined) {
+                    return this.dcfResults.cumulativePoS * 100; // Convert to percentage
+                }
+
+                // Otherwise calculate from current parameters
+                const phases = ['phaseI', 'phaseII', 'phaseIII', 'approval'];
+                let cumulative = 1.0;
+
+                phases.forEach(phase => {
+                    if (this.shouldShowPhase(currentStage, phase)) {
+                        const pos = v.probabilityOfSuccess[phase];
+                        if (pos && pos.value !== undefined) {
+                            const val = typeof pos.value === 'string' ? pos.value.replace(/\s/g, '') : pos.value;
+                            cumulative *= parseFloat(val) / 100;
+                        }
+                    }
+                });
+
+                return cumulative * 100; // Return as percentage
+            },
+
+            renderDynamicCumulativeRisk(phasesToShow, cumulativePoS) {
+                // Build calculation string dynamically
+                const phaseLabels = phasesToShow.map(p => p.label);
+                const phaseValues = phasesToShow.map(p => {
+                    const val = typeof p.param.value === 'string' ? p.param.value.replace(/\s/g, '') : p.param.value;
+                    return `${parseFloat(val)}%`;
+                });
+
+                let calculation = '';
+                if (phaseLabels.length > 0) {
+                    calculation = `${phaseLabels.join(' PoS × ')} PoS = ${phaseValues.join(' × ')} = ${cumulativePoS.toFixed(1)}%`;
+                }
+
+                return `
+                    <div class="param-item">
+                        <div class="param-label">Cumulative Risk Adjustment</div>
+                        <div class="param-value">${cumulativePoS.toFixed(1)}%</div>
+                        ${calculation ? `<div class="param-explanation">${this.escapeHtml(calculation)}</div>` : ''}
+                        <div class="param-source" style="margin-top: 0.5rem; font-style: italic;">
+                            Automatically calculated from current phase success rates
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderDCFResults() {
+                if (!this.dcfResults) return '';
+
+                const dcf = this.dcfResults;
+
+                // Calculate when post-LOE decline completes
+                const v = this.currentValuation;
+                const yearsToApproval = dcf.yearsToApproval || 0;
+                const yearsToPeak = this.getParamValue(v.marketParameters?.yearsToPeakAdoption) || 0;
+                const loe = this.getParamValue(v.marketParameters?.lossOfExclusivity) || 0;
+                const yearsToDecline = this.getParamValue(v.marketParameters?.yearsToDeclinePostLOE) || 5;
+
+                // Calculate year when post-LOE decline completes
+                // Note: loe is measured from approval, so yearsToPeak is NOT added
+                const postLOECompleteYear = Math.ceil(yearsToApproval + loe + yearsToDecline);
+
+                // Show at least enough years to cover post-LOE decline, minimum 20, maximum 40
+                const yearsToShow = Math.min(40, Math.max(20, postLOECompleteYear + 2));
+
+                const displayYears = dcf.years.slice(0, yearsToShow);
+
+                // Group years by stage
+                const stageGroups = [];
+                let currentGroup = null;
+
+                displayYears.forEach(y => {
+                    if (!currentGroup || currentGroup.stage !== y.stage) {
+                        if (currentGroup) {
+                            stageGroups.push(currentGroup);
+                        }
+                        currentGroup = {
+                            stage: y.stage,
+                            startYear: y.year,
+                            endYear: y.year,
+                            years: [y],
+                            revenue: 0,
+                            cogs: 0,
+                            opex: 0,
+                            developmentCosts: 0,
+                            fcf: 0,
+                            riskAdjustedFCF: 0,
+                            presentValue: 0
+                        };
+                    } else {
+                        currentGroup.endYear = y.year;
+                        currentGroup.years.push(y);
+                    }
+
+                    // Sum financials
+                    currentGroup.revenue += y.revenue;
+                    currentGroup.cogs += y.cogs;
+                    currentGroup.opex += y.opex;
+                    currentGroup.developmentCosts += y.developmentCosts;
+                    currentGroup.fcf += y.fcf;
+                    currentGroup.riskAdjustedFCF += y.riskAdjustedFCF;
+                    currentGroup.presentValue += y.presentValue;
+                });
+
+                if (currentGroup) {
+                    stageGroups.push(currentGroup);
+                }
+
+                // Initialize expanded state for all groups
+                if (!this.expandedStages) {
+                    this.expandedStages = {};
+                }
+
+                const tableRows = stageGroups.map((group, idx) => {
+                    const isExpanded = this.expandedStages[idx];
+                    const yearRange = group.startYear === group.endYear
+                        ? `Year ${group.startYear}`
+                        : `Year ${group.startYear} - Year ${group.endYear}`;
+
+                    const groupRow = `
+                        <tr class="stage-group-row" onclick="event.stopPropagation(); App.toggleStageExpansion(${idx})" title="Click to ${isExpanded ? 'collapse' : 'expand'} and view individual years">
+                            <td style="font-weight: 600; cursor: pointer;">
+                                <span style="display: inline-block; width: 16px; text-align: center;">${isExpanded ? '▼' : '▶'}</span>
+                                ${yearRange}
+                            </td>
+                            <td style="font-weight: 600;">${group.stage}</td>
+                            <td>${this.formatMoney(group.revenue)}</td>
+                            <td>${this.formatMoney(group.cogs)}</td>
+                            <td>${this.formatMoney(group.opex)}</td>
+                            <td>${this.formatMoney(group.developmentCosts)}</td>
+                            <td>${this.formatMoney(group.fcf)}</td>
+                            <td>${this.formatMoney(group.riskAdjustedFCF)}</td>
+                            <td>${this.formatMoney(group.presentValue)}</td>
+                        </tr>
+                    `;
+
+                    const detailRows = isExpanded ? group.years.map(y => `
+                        <tr class="year-detail-row">
+                            <td style="padding-left: 2rem;" class="text-secondary-dim">${y.label}</td>
+                            <td class="text-secondary-dim">${y.stage}</td>
+                            <td>${App.formatMoney(y.revenue)}</td>
+                            <td>${App.formatMoney(y.cogs)}</td>
+                            <td>${App.formatMoney(y.opex)}</td>
+                            <td>${App.formatMoney(y.developmentCosts)}</td>
+                            <td>${App.formatMoney(y.fcf)}</td>
+                            <td>${App.formatMoney(y.riskAdjustedFCF)}</td>
+                            <td>${App.formatMoney(y.presentValue)}</td>
+                        </tr>
+                    `).join('') : '';
+
+                    return groupRow + detailRows;
+                }).join('');
+
+                return `
+                    <div class="dcf-results">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+                            <h2 style="font-family: 'DM Sans', sans-serif; font-size: 2.25rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; line-height: 1.1;">DCF Valuation Results</h2>
+                            <button class="export-btn" onclick="App.exportToCSV()"><i class="fa-solid fa-file-export"></i> Export to CSV</button>
+                        </div>
+
+                        <div class="dcf-summary">
+                            <div class="dcf-metric">
+                                <div class="dcf-metric-label">Risk-adj Net Present Value</div>
+                                <div class="dcf-metric-value">${this.formatMoney(dcf.npv)}</div>
+                            </div>
+                            <div class="dcf-metric">
+                                <div class="dcf-metric-label">Success Probability</div>
+                                <div class="dcf-metric-value">${(dcf.cumulativePoS * 100).toFixed(1)}%</div>
+                            </div>
+                            <div class="dcf-metric">
+                                <div class="dcf-metric-label">Discount Rate</div>
+                                <div class="dcf-metric-value">${(dcf.wacc * 100).toFixed(1)}%</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--accent-bg); border-radius: 8px; border: 1px solid var(--border-primary); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.6; color: var(--text-secondary);">
+                            <strong style="font-weight: 600;"> ${postLOECompleteYear} year projection</strong> — Click any stage row to expand individual years
+                        </div>
+
+                        <div class="dcf-table-container">
+                            <table class="dcf-table">
+                                <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Stage</th>
+                                        <th>Revenue</th>
+                                        <th>COGS</th>
+                                        <th>OpEx</th>
+                                        <th>Dev Costs</th>
+                                        <th>FCF</th>
+                                        <th>Risk-Adj FCF</th>
+                                        <th>Present Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                    <tr class="total-row">
+                                        <td colspan="8">Risk-adj Net Present Value (rNPV)</td>
+                                        <td>${this.formatMoney(dcf.npv)}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderValuation() {
+                const v = this.currentValuation;
+                if (!v) return;
+
+                // Ensure yearsToDeclinePostLOE parameter exists (for backward compatibility)
+                if (!v.marketParameters.yearsToDeclinePostLOE) {
+                    v.marketParameters.yearsToDeclinePostLOE = {
+                        value: 5,
+                        unit: 'years',
+                        source: 'Default assumption',
+                        url: '',
+                        explanation: 'Estimated time for generic competition to erode market share from peak to terminal share after loss of exclusivity',
+                        confidence: 'Low'
+                    };
+                }
+
+                // Ensure terminalMarketShare parameter exists (for backward compatibility)
+                if (!v.marketParameters.terminalMarketShare) {
+                    v.marketParameters.terminalMarketShare = {
+                        value: 20,
+                        unit: '%',
+                        source: 'Default assumption',
+                        url: '',
+                        explanation: 'Residual market share after generic competition and LOE decline period',
+                        confidence: 'Low'
+                    };
+                }
+
+                // Ensure phase durations exist (for backward compatibility)
+                if (!v.developmentTimeline.phaseIDuration && !v.developmentTimeline.phaseIIDuration &&
+                    !v.developmentTimeline.phaseIIIDuration && !v.developmentTimeline.approvalDuration) {
+                    // Get current stage to determine which phases to show
+                    const currentStage = (v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready').toLowerCase();
+                    const stageOrder = {
+                        'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
+                        'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
+                        'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
+                        'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
+                        'registration ready': 4, 'approval': 4,
+                        'approved': 5
+                    };
+                    const currentStageValue = stageOrder[currentStage] ?? 0;
+
+                    // Distribute the total years to approval across remaining phases
+                    const rawYears = v.developmentTimeline.yearsToApproval?.value || 6;
+                    const totalYears = parseFloat(typeof rawYears === 'string' ? rawYears.replace(/\s/g, '') : rawYears);
+                    const phasesRemaining = Math.max(1, 5 - currentStageValue); // Phases I, II, III, Approval
+                    const yearsPerPhase = totalYears / phasesRemaining;
+
+                    // Create phase durations for remaining phases
+                    if (currentStageValue <= 1) {
+                        v.developmentTimeline.phaseIDuration = {
+                            value: yearsPerPhase.toFixed(1),
+                            unit: 'years',
+                            source: 'Estimated from total years to approval',
+                            url: '',
+                            explanation: 'Duration of Phase I clinical trials',
+                            confidence: 'Low'
+                        };
+                    }
+                    if (currentStageValue <= 2) {
+                        v.developmentTimeline.phaseIIDuration = {
+                            value: yearsPerPhase.toFixed(1),
+                            unit: 'years',
+                            source: 'Estimated from total years to approval',
+                            url: '',
+                            explanation: 'Duration of Phase II clinical trials',
+                            confidence: 'Low'
+                        };
+                    }
+                    if (currentStageValue <= 3) {
+                        v.developmentTimeline.phaseIIIDuration = {
+                            value: yearsPerPhase.toFixed(1),
+                            unit: 'years',
+                            source: 'Estimated from total years to approval',
+                            url: '',
+                            explanation: 'Duration of Phase III clinical trials',
+                            confidence: 'Low'
+                        };
+                    }
+                    if (currentStageValue <= 4) {
+                        v.developmentTimeline.approvalDuration = {
+                            value: yearsPerPhase.toFixed(1),
+                            unit: 'years',
+                            source: 'Estimated from total years to approval',
+                            url: '',
+                            explanation: 'Duration of regulatory review and approval process',
+                            confidence: 'Low'
+                        };
+                    }
+                }
+
+                const html = `
+                    <a href="#/" class="back-button">← Back to List</a>
+
+                    <div class="section">
+                        <h2 class="section-title">${this.escapeHtml(v.assetOverview.assetName)}</h2>
+                        <div class="overview-grid">
+                            ${this.renderOverviewItem('Therapeutic Area', v.assetOverview.therapeuticArea)}
+                            ${this.renderOverviewItem('Mechanism of Action', v.assetOverview.mechanismOfAction)}
+                            ${this.renderOverviewItem('Modality', v.assetOverview.modality)}
+                            ${this.renderOverviewItem('Development Stage', v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase)}
+                        </div>
+                    </div>
+
+                    ${this.renderDCFResults()}
+
+                    <div class="section">
+                        <h3 class="section-title">Market Parameters</h3>
+                        <div class="param-grid">
+                            ${this.renderParam('Total Addressable Market', v.marketParameters.totalAddressableMarket, 'marketParameters', 'totalAddressableMarket')}
+                            ${this.renderParam('Peak Market Share', v.marketParameters.peakMarketShare, 'marketParameters', 'peakMarketShare')}
+                            ${this.renderParam('Years to Peak Adoption', v.marketParameters.yearsToPeakAdoption, 'marketParameters', 'yearsToPeakAdoption')}
+                            ${this.renderParam('Annual Pricing', v.marketParameters.annualPricing, 'marketParameters', 'annualPricing')}
+                            ${this.renderParam('Loss of Exclusivity', v.marketParameters.lossOfExclusivity, 'marketParameters', 'lossOfExclusivity')}
+                            ${this.renderParam('Years to Decline Post-LOE', v.marketParameters.yearsToDeclinePostLOE, 'marketParameters', 'yearsToDeclinePostLOE')}
+                            ${this.renderParam('Terminal Market Share', v.marketParameters.terminalMarketShare, 'marketParameters', 'terminalMarketShare')}
+                        </div>
+                    </div>
+
+                    ${this.renderDevelopmentTimelineSection(v)}
+
+
+                    ${this.renderClinicalTrialCostsSection(v)}
+
+                    ${this.renderProbabilityOfSuccessSection(v)}
+
+                    <div class="section">
+                        <h3 class="section-title">Financial Parameters</h3>
+                        <div class="param-grid">
+                            ${this.renderParam('Cost of Goods Sold', v.financialParameters.costOfGoodsSold, 'financialParameters', 'costOfGoodsSold')}
+                            ${this.renderParam('Operating Expenses', v.financialParameters.operatingExpenses, 'financialParameters', 'operatingExpenses')}
+                            ${this.renderParam('Tax Rate', v.financialParameters.taxRate, 'financialParameters', 'taxRate')}
+                            ${this.renderParam('Discount Rate (WACC)', v.financialParameters.discountRate, 'financialParameters', 'discountRate')}
+                        </div>
+                    </div>
+
+                    ${v.metadata ? `
+                    <div class="section">
+                        <h3 class="section-title">Metadata</h3>
+                        <div class="param-source">
+                            <strong>Generated:</strong> ${this.formatDate(v.metadata.generatedDate)}<br>
+                            <strong>Currency:</strong> ${this.escapeHtml(v.metadata.currency)}<br>
+                            <strong>Notes:</strong> ${this.escapeHtml(v.metadata.notes)}
+                        </div>
+                    </div>
+                    ` : ''}
+                `;
+
+                this.render(html);
+            },
+
+            renderOverviewItem(label, value) {
+                return `
+                    <div class="overview-item">
+                        <div class="overview-label">${this.escapeHtml(label)}</div>
+                        <div class="overview-value">${this.escapeHtml(value)}</div>
+                    </div>
+                `;
+            },
+
+            renderParam(label, param, section, field) {
+                if (!param || param.value === undefined) return '';
+
+                const editBtn = section && field ? `<button class="edit-btn" onclick="App.openEditModal('${section}', '${field}', '${this.escapeHtml(label)}')"><i class="fa-solid fa-pen"></i> Edit</button>` : '';
+
+                return `
+                    <div class="param-item">
+                        <div class="param-label">${this.escapeHtml(label)}${editBtn}</div>
+                        <div class="param-value">
+                            ${this.formatValue(param.value, param.unit)}
+                        </div>
+                        ${param.explanation ? `<div class="param-explanation">${this.escapeHtml(param.explanation)}</div>` : ''}
+                        ${param.source ? `
+                            <div class="param-source">
+                                <strong>Source:</strong> ${this.escapeHtml(param.source)}
+                                ${param.url ? `<br><a href="${this.escapeHtml(param.url)}" target="_blank">View Source →</a>` : ''}
+                            </div>
+                        ` : ''}
+                        ${param.confidence ? `<span class="confidence confidence-${param.confidence.toLowerCase()}">${this.escapeHtml(param.confidence)} Confidence</span>` : ''}
+                    </div>
+                `;
+            },
+
+            openEditModal(section, field, label) {
+                const param = this.currentValuation[section][field];
+                this.editingParam = { section, field, label };
+
+                document.getElementById('editValue').value = param.value;
+                document.getElementById('editSource').value = param.source || '';
+                document.getElementById('editUrl').value = param.url || '';
+                document.getElementById('editExplanation').value = param.explanation || '';
+                document.getElementById('editConfidence').value = param.confidence || 'Medium';
+
+                document.getElementById('editModal').classList.add('active');
+            },
+
+            closeEditModal() {
+                document.getElementById('editModal').classList.remove('active');
+                this.editingParam = null;
+            },
+
+            async saveEdit() {
+                if (!this.editingParam) return;
+
+                const { section, field } = this.editingParam;
+                const param = this.currentValuation[section][field];
+
+                // Update local data - strip spaces from numeric values before saving
+                let rawValue = document.getElementById('editValue').value;
+                // Remove spaces (thousands separator) before parsing
+                rawValue = rawValue.replace(/\s/g, '');
+                // If it's a number, parse it, otherwise keep as string
+                param.value = isNaN(parseFloat(rawValue)) ? rawValue : parseFloat(rawValue);
+                param.source = document.getElementById('editSource').value;
+                param.url = document.getElementById('editUrl').value;
+                param.explanation = document.getElementById('editExplanation').value;
+                param.confidence = document.getElementById('editConfidence').value;
+
+                this.closeEditModal();
+
+                // Save to backend
+                try {
+                    const response = await fetch(`/api/valuations/${this.currentValuationId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(this.currentValuation)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to save changes');
+                    }
+
+                    // Update local copy with server response
+                    this.currentValuation = await response.json();
+
+                    // Recalculate DCF with updated values
+                    await this.recalculateDCF();
+                } catch (error) {
+                    alert(`Error saving changes: ${error.message}`);
+                    // Reload valuation to revert changes
+                    this.showValuation(this.currentValuationId);
+                }
+            },
+
+            exportToCSV() {
+                if (!this.dcfResults || !this.currentValuation) return;
+
+                const v = this.currentValuation;
+                const dcf = this.dcfResults;
+
+                let csv = 'BioBucks DCF Valuation Export\n\n';
+                csv += `Asset Name:,${v.assetOverview.assetName}\n`;
+                csv += `Therapeutic Area:,${v.assetOverview.therapeuticArea}\n`;
+                csv += `Development Phase:,${v.assetOverview.currentDevelopmentPhase}\n\n`;
+
+                csv += 'DCF Summary\n';
+                csv += `Risk-adj Net Present Value (rNPV):,$${(dcf.npv / 1000000).toFixed(2)}M\n`;
+                csv += `Cumulative Probability of Success:,${(dcf.cumulativePoS * 100).toFixed(1)}%\n`;
+                csv += `Discount Rate (WACC):,${(dcf.wacc * 100).toFixed(1)}%\n\n`;
+
+                csv += 'Year-by-Year Cash Flow Projections\n';
+                csv += 'Year,Stage,Revenue ($M),COGS ($M),OpEx ($M),Dev Costs ($M),EBIT ($M),Tax ($M),FCF ($M),Risk-Adj FCF ($M),Discount Factor,Present Value ($M)\n';
+
+                dcf.years.forEach(y => {
+                    csv += `${y.label},`;
+                    csv += `${y.stage},`;
+                    csv += `${(y.revenue / 1000000).toFixed(2)},`;
+                    csv += `${(y.cogs / 1000000).toFixed(2)},`;
+                    csv += `${(y.opex / 1000000).toFixed(2)},`;
+                    csv += `${(y.developmentCosts / 1000000).toFixed(2)},`;
+                    csv += `${(y.ebit / 1000000).toFixed(2)},`;
+                    csv += `${(y.tax / 1000000).toFixed(2)},`;
+                    csv += `${(y.fcf / 1000000).toFixed(2)},`;
+                    csv += `${(y.riskAdjustedFCF / 1000000).toFixed(2)},`;
+                    csv += `${y.discountFactor.toFixed(4)},`;
+                    csv += `${(y.presentValue / 1000000).toFixed(2)}\n`;
+                });
+
+                // Download CSV
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${v.assetOverview.assetName.replace(/\s+/g, '_')}_DCF_${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+
+            toggleStageExpansion(stageIndex) {
+                if (!this.expandedStages) {
+                    this.expandedStages = {};
+                }
+                this.expandedStages[stageIndex] = !this.expandedStages[stageIndex];
+
+                // Save scroll position before re-render
+                const scrollPos = window.pageYOffset || document.documentElement.scrollTop;
+
+                this.renderValuation();
+
+                // Restore scroll position after re-render
+                requestAnimationFrame(() => {
+                    window.scrollTo(0, scrollPos);
+                });
+            },
+
+            renderCumulativeRisk(param) {
+                if (!param || param.value === undefined) return '';
+
+                return `
+                    <div class="param-item">
+                        <div class="param-label">Cumulative Risk Adjustment</div>
+                        <div class="param-value">${this.formatValue(param.value, param.unit)}</div>
+                        ${param.calculation ? `<div class="param-explanation">${this.escapeHtml(param.calculation)}</div>` : ''}
+                    </div>
+                `;
+            },
+
+            formatValue(value, unit) {
+                if (unit && unit.includes('%')) {
+                    return `${value}%`;
+                } else if (unit && unit.includes('USD')) {
+                    // Strip spaces before parsing
+                    const numValue = typeof value === 'string' ? value.replace(/\s/g, '') : value;
+                    if (unit.includes('millions')) {
+                        // Format with space as thousands separator
+                        const formatted = parseFloat(numValue).toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                        return `$${formatted}M`;
+                    } else {
+                        return `$${this.formatNumber(parseFloat(numValue))}`;
+                    }
+                } else if (unit && unit.includes('patients')) {
+                    const numValue = typeof value === 'string' ? value.replace(/\s/g, '') : value;
+                    return `${this.formatNumber(parseFloat(numValue))} patients`;
+                } else if (unit && unit.includes('years')) {
+                    return `${value} years`;
+                }
+                return `${value} ${unit || ''}`.trim();
+            },
+
+            formatNumber(num) {
+                // Use spaces as thousands separator
+                return num.toLocaleString('en-US').replace(/,/g, ' ');
+            },
+
+            formatMoney(num, decimals = 1) {
+                // Format money values in millions with space as thousands separator
+                const value = (num / 1000000).toFixed(decimals);
+                const parts = value.split('.');
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+                return '$' + parts.join('.') + 'M';
+            },
+
+            formatDate(dateStr) {
+                if (!dateStr) return 'N/A';
+                try {
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                } catch {
+                    return dateStr;
+                }
+            },
+
+            getParamValue(param) {
+                if (!param || param.value === undefined) return 0;
+                // Handle string values with space thousands separators
+                const value = typeof param.value === 'string'
+                    ? param.value.replace(/\s/g, '')
+                    : param.value;
+                return parseFloat(value) || 0;
+            },
+
+            escapeHtml(text) {
+                if (text === null || text === undefined) return '';
+                const div = document.createElement('div');
+                div.textContent = text.toString();
+                return div.innerHTML;
+            }
+        };
+
+        // Initialize app when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => App.init());
+        } else {
+            App.init();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+{
+  "assetOverview": {
+    "assetName": "NLRP3 Inhibitor (Small Molecule)",
+    "therapeuticArea": "CNS / Neurology - Parkinson's Disease",
+    "mechanismOfAction": "NLRP3 inflammasome inhibitor - blocks neuroinflammatory cascade implicated in dopaminergic neuron loss",
+    "modality": "Small molecule",
+    "currentDevelopmentStage": "Phase I Ready",
+    "biomarkerStatus": {
+      "hasBiomarker": true,
+      "biomarkerType": "exploratory",
+      "biomarkerDescription": "Exploratory inflammatory biomarkers for patient selection (e.g., CSF IL-1\u03b2, IL-6, NfL levels, neuroimaging markers of inflammation)",
+      "phaseSpecificMultipliers": {
+        "phase_1_to_2": 1.18,
+        "phase_2_to_3": 1.28,
+        "phase_3_to_approval": 1.01
+      },
+      "overallLOAImprovement": 1.52,
+      "notes": "Exploratory biomarkers (50-75% of validated biomarker effect). Phase-specific multipliers applied. Biomarker benefit concentrated in early phases (Phase I-II), with minimal impact in Phase III. Based on Wong et al. 2019 oncology data; applicability to CNS/neurology is uncertain."
+    }
+  },
+  "marketParameters": {
+    "totalAddressableMarket": {
+      "value": 412500,
+      "unit": "patients",
+      "source": "Parkinson's Foundation / APDA 2024 Prevalence Studies",
+      "url": "https://www.parkinson.org/understanding-parkinsons/statistics/prevalence-incidence",
+      "explanation": "Calculated as: 1.1M US PD prevalence \u00d7 75% early-to-moderate stage eligible for disease-modifying therapy \u00d7 50% projected treatment uptake for novel oral anti-inflammatory DMT = 412,500 patients. Novel NLRP3 mechanism may increase uptake given significant unmet need for disease modification.",
+      "confidence": "Medium"
+    },
+    "peakMarketShare": {
+      "value": 12,
+      "unit": "%",
+      "source": "Competitive landscape analysis - NLRP3 inhibitor pipeline",
+      "url": "https://www.neurologylive.com/view/nrlp3-inhibitor-vtx3232-well-tolerated-improves-parkinson-symptoms-phase-2a-trial",
+      "explanation": "Moderately competitive NLRP3 pipeline: NT-0796 (NodThera, Phase IIa/IIb), VTX3232 (Ventyx, Phase 2), VENT-02 (Ventus, Phase 1b), Dapansutrile (Olatec, Phase 2), RO-7486967/Selnoflast (Roche), ISM8969 (Insilico, IND Q4 2025). Also competing with other DMT approaches (prasinezumab, buntanetap, bemdaneprocel). First-in-class NLRP3 potential in PD but 5+ competitors in development. 12% peak share reflects moderate differentiation in crowded DMT landscape.",
+      "confidence": "Medium"
+    },
+    "yearsToPeakAdoption": {
+      "value": 6,
+      "unit": "years",
+      "source": "Industry benchmarks for novel CNS therapies",
+      "url": "https://www.clinicaltrialsarena.com/analyst-comment/parkinsons-disease-market-expected-7mm-2033/",
+      "explanation": "Novel disease-modifying therapies in CNS typically take 5-7 years to reach peak adoption due to conservative prescribing, need for long-term efficacy data, and gradual reimbursement coverage expansion. SPN-830 and tavapadon projected to take ~7 years to peak. 6 years estimated for oral NLRP3 inhibitor given convenience advantage.",
+      "confidence": "Medium"
+    },
+    "annualPricing": {
+      "value": 48000,
+      "unit": "USD per patient per year",
+      "source": "Neurology specialty drug pricing benchmarks",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9990429/",
+      "explanation": "Oral small molecule disease-modifying therapy for major neurological indication. Comparable pricing: novel PD therapies range $15,000-$80,000/year depending on modality. Anti-inflammatory oral drugs typically priced below biologics. $48,000/year reflects premium for disease-modification claim while remaining below specialty biologic pricing.",
+      "confidence": "Medium"
+    },
+    "lossOfExclusivity": {
+      "value": 12,
+      "unit": "years from approval",
+      "source": "Hatch-Waxman Act - Small Molecule Exclusivity",
+      "url": "https://www.fda.gov/drugs/development-approval-process-drugs",
+      "explanation": "Small molecule drugs receive ~12 years effective exclusivity in US (5-year NCE exclusivity + patent term extension). Assumes standard exclusivity without orphan drug designation. Patent cliff expected 12 years post-approval.",
+      "confidence": "High"
+    },
+    "yearsToDeclinePostLOE": {
+      "value": 5,
+      "unit": "years",
+      "source": "Generic erosion benchmarks",
+      "url": "https://www.bcg.com/publications/2019/getting-a-grip-on-cogs-in-generic-drugs",
+      "explanation": "Oral small molecules typically experience 5-year erosion period post-LOE as generics capture market share. CNS drugs may have slightly slower erosion due to prescriber familiarity and patient switching barriers.",
+      "confidence": "High"
+    },
+    "terminalMarketShare": {
+      "value": 18,
+      "unit": "%",
+      "source": "Branded drug post-patent retention analysis",
+      "url": "https://www.bcg.com/publications/2019/getting-a-grip-on-cogs-in-generic-drugs",
+      "explanation": "Branded CNS drugs with established efficacy and physician familiarity typically retain 15-25% market share post-generic entry. Disease-modifying mechanism and patient/physician loyalty support 18% terminal share.",
+      "confidence": "Medium"
+    }
+  },
+  "developmentTimeline": {
+    "phaseIDuration": {
+      "value": 2.1,
+      "unit": "years",
+      "source": "BIO/QLS Clinical Development Success Rates 2011-2020",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Reference data for neurology therapeutic area shows 2.1 years average Phase I duration. Small molecule NLRP3 inhibitor first-in-human studies expected to follow standard neurology timelines including dose escalation and CNS penetration assessment.",
+      "confidence": "High"
+    },
+    "phaseIIDuration": {
+      "value": 3.7,
+      "unit": "years",
+      "source": "BIO/QLS Clinical Development Success Rates 2011-2020",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Neurology Phase II duration averages 3.7 years per BIO/QLS data. Parkinson's disease trials require extended follow-up for biomarker endpoints (CSF inflammatory markers, imaging) and clinical outcomes. NodThera's NT-0796 Phase Ib/IIa took ~2 years; full Phase II expected longer.",
+      "confidence": "High"
+    },
+    "phaseIIIDuration": {
+      "value": 3.7,
+      "unit": "years",
+      "source": "BIO/QLS Clinical Development Success Rates 2011-2020",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Neurology Phase III averages 3.7 years. Disease-modifying PD trials require large patient populations (~500-1500) and extended follow-up (18-24+ months) to demonstrate slowing of disease progression on MDS-UPDRS or similar endpoints.",
+      "confidence": "High"
+    },
+    "approvalDuration": {
+      "value": 1.5,
+      "unit": "years",
+      "source": "FDA NDA Review Timeline - Neurology",
+      "url": "https://www.fda.gov/patients/fast-track-breakthrough-therapy-accelerated-approval-priority-review/priority-review",
+      "explanation": "Standard NDA review: 10 months. Priority review possible for disease-modifying PD therapy: 6 months. Including NDA preparation and potential FDA queries, 1.5 years total. Neurology average is 1.6 years per BIO/QLS data.",
+      "confidence": "High"
+    }
+  },
+  "clinicalTrialCosts": {
+    "phaseI": {
+      "value": 7.5,
+      "unit": "USD millions",
+      "source": "Industry estimates for CNS clinical trials",
+      "url": "https://prorelixresearch.com/phase-by-phase-clinical-trial-costs-guide/",
+      "explanation": "Neurology Phase I per-patient cost: $158,000 (reference data). Estimated 40-50 patients for first-in-human dose escalation with CNS penetration assessment. 45 patients \u00d7 $158K = $7.1M, rounded to $7.5M including CNS-specific assessments (CSF sampling, neuroimaging).",
+      "confidence": "Medium"
+    },
+    "phaseII": {
+      "value": 25,
+      "unit": "USD millions",
+      "source": "Industry estimates for CNS clinical trials",
+      "url": "https://prorelixresearch.com/phase-by-phase-clinical-trial-costs-guide/",
+      "explanation": "Neurology Phase II per-patient cost: $139,200 (reference data). Estimated 150-180 PD patients for proof-of-concept biomarker study. 170 patients \u00d7 $139K = $23.6M, rounded to $25M including CNS-specific procedures (serial CSF sampling, PET imaging, extended follow-up).",
+      "confidence": "Medium"
+    },
+    "phaseIII": {
+      "value": 65,
+      "unit": "USD millions",
+      "source": "Industry estimates for CNS clinical trials / Alzheimer's DMT benchmarks",
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12131090/",
+      "explanation": "Neurology Phase III per-patient cost: $122,105 (reference data). Disease-modifying PD trial requires ~500-600 patients with 18-24 month follow-up. 550 patients \u00d7 $122K = $67M. Aligned with Alzheimer's DMT pivotal trials (~1,500 patients, $50-100M). Conservative estimate of $65M.",
+      "confidence": "Medium"
+    },
+    "approval": {
+      "value": 3,
+      "unit": "USD millions",
+      "source": "ASPE/HHS Clinical Trial Costs Analysis",
+      "url": "https://aspe.hhs.gov/reports/examination-clinical-trial-costs-barriers-drug-development-0",
+      "explanation": "NDA preparation, regulatory filing fees, FDA meetings, and post-submission activities. Standard range $1-5M. $3M reflects typical NDA costs for novel CNS indication.",
+      "confidence": "High"
+    }
+  },
+  "probabilityOfSuccess": {
+    "phaseI": {
+      "value": 56.3,
+      "unit": "%",
+      "source": "BIO/QLS 2021 (neurology baseline) + Wong et al. 2019 (biomarker adjustment)",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Baseline neurology Phase I\u2192II: 47.7% (BIO/QLS 2021, n=516). Exploratory biomarker adjustment: 47.7% \u00d7 1.18 = 56.3%. Biomarker effect most pronounced in early phases. Small molecule modality has baseline 52.6% Phase I success.",
+      "confidence": "Medium"
+    },
+    "phaseII": {
+      "value": 34.3,
+      "unit": "%",
+      "source": "BIO/QLS 2021 (neurology baseline) + Wong et al. 2019 (biomarker adjustment)",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Baseline neurology Phase II\u2192III: 26.8% (BIO/QLS 2021, n=504). Exploratory biomarker adjustment: 26.8% \u00d7 1.28 = 34.3%. Phase II is historically the highest hurdle in neurology (average 28.9% all indications). Biomarker-guided enrichment provides maximum benefit at this stage.",
+      "confidence": "Medium"
+    },
+    "phaseIII": {
+      "value": 53.6,
+      "unit": "%",
+      "source": "BIO/QLS 2021 (neurology baseline) + Wong et al. 2019 (biomarker adjustment)",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Baseline neurology Phase III\u2192Approval: 53.1% (BIO/QLS 2021, n=226). Exploratory biomarker adjustment: 53.1% \u00d7 1.01 = 53.6%. Minimal biomarker benefit in late-stage trials per Wong et al. data.",
+      "confidence": "Medium"
+    },
+    "approval": {
+      "value": 86.7,
+      "unit": "%",
+      "source": "BIO/QLS Clinical Development Success Rates 2011-2020",
+      "url": "https://go.bio.org/rs/490-EHZ-999/images/ClinicalDevelopmentSuccessRates2011_2020.pdf",
+      "explanation": "Neurology NDA/BLA\u2192Approval: 86.7% (BIO/QLS 2021, n=165). Regulatory submission success rate reflects completed Phase III trials with positive data. No biomarker adjustment applied at regulatory stage.",
+      "confidence": "High"
+    },
+    "cumulativeRiskAdjustment": {
+      "value": 9,
+      "unit": "%",
+      "calculation": "Phase I PoS \u00d7 Phase II PoS \u00d7 Phase III PoS \u00d7 Approval PoS = 56.3% \u00d7 34.3% \u00d7 53.6% \u00d7 86.7% = 8.97%, rounded to 9.0%"
+    },
+    "biomarkerAdjustmentApplied": {
+      "applied": true,
+      "phaseSpecificMultipliers": {
+        "phase_1_to_2": 1.18,
+        "phase_2_to_3": 1.28,
+        "phase_3_to_approval": 1.01
+      },
+      "notes": "Exploratory biomarker (inflammatory markers in CSF/blood) - 50-75% of validated biomarker effect applied. Phase-specific multipliers: 1.18x (Phase I\u2192II), 1.28x (Phase II\u2192III), 1.01x (Phase III\u2192Approval). Biomarker benefit concentrated in early phases. Without biomarker adjustment, baseline neurology LOA would be 5.9%."
+    },
+    "referenceDataSource": {
+      "baselineSource": "clinical_trial_reference_data.json",
+      "therapeuticAreaUsed": "neurology",
+      "indicationSpecificDataUsed": null
+    }
+  },
+  "financialParameters": {
+    "costOfGoodsSold": {
+      "value": 18,
+      "unit": "% of revenue",
+      "source": "BCG Biopharma Manufacturing Cost Analysis",
+      "url": "https://www.bcg.com/publications/2017/biopharmaceuticals-operations-what-does-and-does-not-drive-biopharma-cost-performance",
+      "explanation": "Small molecule drugs average COGS 15-20% of revenue. Oral formulation with established manufacturing process. BCG benchmark shows small molecule production cost ~$5/pack vs $60 for biologics. 18% reflects typical small molecule COGS with CNS drug quality requirements.",
+      "confidence": "High"
+    },
+    "operatingExpenses": {
+      "value": 40,
+      "unit": "% of revenue",
+      "source": "USC Schaeffer / Pharma industry financial analysis",
+      "url": "https://schaeffer.usc.edu/research/how-did-the-public-u-s-drugmakers-sales-expenses-and-profits-change-over-time/",
+      "explanation": "SG&A expenses for commercial-stage specialty pharma typically 35-50% of revenue. CNS disease-modifying therapies require significant medical education, patient support programs, and specialty sales force. 40% represents mid-range estimate for PD specialty market.",
+      "confidence": "Medium"
+    },
+    "taxRate": {
+      "value": 26,
+      "unit": "%",
+      "source": "US Corporate Tax + State Tax Effective Rate",
+      "url": "https://www.phoenixstrategy.group/blog/cost-of-capital-industry-benchmarks",
+      "explanation": "US federal corporate tax rate: 21%. Average state tax: ~5%. Effective combined rate for US-focused biotech: 25-28%. 26% represents typical effective tax rate before R&D credits and other deductions.",
+      "confidence": "High"
+    },
+    "discountRate": {
+      "value": 11,
+      "unit": "%",
+      "source": "Industry WACC benchmarks for clinical-stage biotech",
+      "url": "https://www.biopharmavantage.com/pharma-biotech-discount-rates",
+      "explanation": "Clinical-stage biotech WACC: 13-14% historically, with 2024-2025 rate stabilization bringing current estimates to 10-12%. Phase I Ready asset carries higher risk than late-stage. Large pharma WACC ~9%. 11% reflects clinical-stage CNS biotech with single-asset risk, without double-counting development risk (risk-adjusted via PoS separately).",
+      "confidence": "Medium"
+    }
+  },
+  "metadata": {
+    "generatedDate": "2026-01-25T00:00:00Z",
+    "currency": "USD",
+    "geographicScope": "United States",
+    "notes": "All dollar values in USD and market scope is United States only. Confidence levels: High (authoritative source from within 2 years), Medium (authoritative source 2-5 years old or recent indirect source), Low (estimated, extrapolated, or >5 years old). This research provides inputs for DCF modeling. Users should validate assumptions and adjust based on specific asset characteristics. Key uncertainties: (1) NLRP3 competitive landscape rapidly evolving, (2) Disease-modifying endpoint validation in PD remains challenging, (3) Biomarker adjustment data from oncology may not fully translate to CNS."
+  }
+}
