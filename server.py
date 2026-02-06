@@ -15,7 +15,7 @@ import json
 import os
 import sys
 from pathlib import Path
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlparse
 from datetime import datetime
 import math
 
@@ -38,6 +38,44 @@ def get_param_value(param, default=0):
         return parse_value(param['value'])
     except (ValueError, TypeError):
         return default
+
+
+def calculate_phase_fractions(year, phase_i_duration, phase_i_end, phase_ii_duration, phase_ii_end,
+                              phase_iii_duration, phase_iii_end, approval_duration, approval_end):
+    """Calculate the overlap fraction of each clinical phase within a given year.
+
+    Returns a list of (phase_name, phase_key, fraction) tuples for phases
+    that overlap with [year, year+1).
+    """
+    year_start = float(year)
+    year_end = float(year + 1)
+    fractions = []
+
+    # Phase I overlap
+    if phase_i_duration > 0 and year_start < phase_i_end:
+        overlap = min(year_end, phase_i_end) - max(year_start, 0)
+        if overlap > 0:
+            fractions.append(('Phase I', 'phaseI', overlap))
+
+    # Phase II overlap
+    if phase_ii_duration > 0 and year_start < phase_ii_end and year_end > phase_i_end:
+        overlap = min(year_end, phase_ii_end) - max(year_start, phase_i_end)
+        if overlap > 0:
+            fractions.append(('Phase II', 'phaseII', overlap))
+
+    # Phase III overlap
+    if phase_iii_duration > 0 and year_start < phase_iii_end and year_end > phase_ii_end:
+        overlap = min(year_end, phase_iii_end) - max(year_start, phase_ii_end)
+        if overlap > 0:
+            fractions.append(('Phase III', 'phaseIII', overlap))
+
+    # Approval overlap
+    if approval_duration > 0 and year_start < approval_end and year_end > phase_iii_end:
+        overlap = min(year_end, approval_end) - max(year_start, phase_iii_end)
+        if overlap > 0:
+            fractions.append(('Approval Process', 'approval', overlap))
+
+    return fractions
 
 
 def calculate_dcf(valuation_data):
@@ -128,55 +166,17 @@ def calculate_dcf(valuation_data):
 
         # Determine stage and costs for this year
         if year < years_to_approval:
-            # Development phases - calculate partial year allocation
-            # Year boundaries: [year, year+1)
-            year_start = float(year)
-            year_end = float(year + 1)
+            # Development phases - calculate partial year cost allocation
+            phase_fractions = calculate_phase_fractions(
+                year, phase_i_duration, phase_i_end, phase_ii_duration, phase_ii_end,
+                phase_iii_duration, phase_iii_end, approval_duration, approval_end
+            )
 
-            # Calculate overlap of this year with each phase
-            # Phase boundaries: Phase I [0, phase_i_end), Phase II [phase_i_end, phase_ii_end), etc.
-            total_dev_cost = 0
-            phase_fractions = []
-
-            # Phase I overlap
-            if phase_i_duration > 0 and year_start < phase_i_end:
-                overlap_start = max(year_start, 0)
-                overlap_end = min(year_end, phase_i_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    total_dev_cost += annual_costs['phaseI'] * fraction
-                    phase_fractions.append(('Phase I', fraction))
-
-            # Phase II overlap
-            if phase_ii_duration > 0 and year_start < phase_ii_end and year_end > phase_i_end:
-                overlap_start = max(year_start, phase_i_end)
-                overlap_end = min(year_end, phase_ii_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    total_dev_cost += annual_costs['phaseII'] * fraction
-                    phase_fractions.append(('Phase II', fraction))
-
-            # Phase III overlap
-            if phase_iii_duration > 0 and year_start < phase_iii_end and year_end > phase_ii_end:
-                overlap_start = max(year_start, phase_ii_end)
-                overlap_end = min(year_end, phase_iii_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    total_dev_cost += annual_costs['phaseIII'] * fraction
-                    phase_fractions.append(('Phase III', fraction))
-
-            # Approval overlap
-            if approval_duration > 0 and year_start < approval_end and year_end > phase_iii_end:
-                overlap_start = max(year_start, phase_iii_end)
-                overlap_end = min(year_end, approval_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    total_dev_cost += annual_costs['approval'] * fraction
-                    phase_fractions.append(('Approval Process', fraction))
+            total_dev_cost = sum(annual_costs[key] * frac for _, key, frac in phase_fractions)
 
             # Determine primary stage (phase with largest fraction)
             if phase_fractions:
-                year_data['stage'] = max(phase_fractions, key=lambda x: x[1])[0]
+                year_data['stage'] = max(phase_fractions, key=lambda x: x[2])[0]
             else:
                 year_data['stage'] = current_stage
 
@@ -226,49 +226,18 @@ def calculate_dcf(valuation_data):
         # Each phase's costs are only incurred if prior phases succeed
         # Commercial revenues require all phases to succeed
         if year < years_to_approval:
-            # Development phase - apply phase-specific risk to each phase fragment
-            # Calculate risk-adjusted cost for each phase fraction in this year
-            risk_adjusted_cost = 0
+            # Apply cumulative prior-phase success probability to each phase's costs
+            prior_risk = {
+                'phaseI': 1.0,
+                'phaseII': pos['phaseI'],
+                'phaseIII': pos['phaseI'] * pos['phaseII'],
+                'approval': pos['phaseI'] * pos['phaseII'] * pos['phaseIII']
+            }
 
-            # Process each phase fraction with its appropriate risk factor
-            year_start = float(year)
-            year_end = float(year + 1)
-
-            # Phase I costs have no prior risk
-            if phase_i_duration > 0 and year_start < phase_i_end:
-                overlap_start = max(year_start, 0)
-                overlap_end = min(year_end, phase_i_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    phase_cost = annual_costs['phaseI'] * fraction
-                    risk_adjusted_cost += phase_cost * 1.0  # No prior risk
-
-            # Phase II costs require Phase I success
-            if phase_ii_duration > 0 and year_start < phase_ii_end and year_end > phase_i_end:
-                overlap_start = max(year_start, phase_i_end)
-                overlap_end = min(year_end, phase_ii_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    phase_cost = annual_costs['phaseII'] * fraction
-                    risk_adjusted_cost += phase_cost * pos['phaseI']
-
-            # Phase III costs require Phase I and II success
-            if phase_iii_duration > 0 and year_start < phase_iii_end and year_end > phase_ii_end:
-                overlap_start = max(year_start, phase_ii_end)
-                overlap_end = min(year_end, phase_iii_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    phase_cost = annual_costs['phaseIII'] * fraction
-                    risk_adjusted_cost += phase_cost * (pos['phaseI'] * pos['phaseII'])
-
-            # Approval costs require Phase I, II, and III success
-            if approval_duration > 0 and year_start < approval_end and year_end > phase_iii_end:
-                overlap_start = max(year_start, phase_iii_end)
-                overlap_end = min(year_end, approval_end)
-                fraction = max(0, overlap_end - overlap_start)
-                if fraction > 0:
-                    phase_cost = annual_costs['approval'] * fraction
-                    risk_adjusted_cost += phase_cost * (pos['phaseI'] * pos['phaseII'] * pos['phaseIII'])
+            risk_adjusted_cost = sum(
+                annual_costs[key] * frac * prior_risk[key]
+                for _, key, frac in phase_fractions
+            )
 
             year_data['riskAdjustedFCF'] = -risk_adjusted_cost
 

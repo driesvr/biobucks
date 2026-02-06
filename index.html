@@ -67,6 +67,16 @@
     </div>
 
     <script>
+        // Stage ordering for phase visibility logic
+        const STAGE_ORDER = {
+            'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
+            'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
+            'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
+            'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
+            'registration ready': 4, 'approval': 4,
+            'approved': 5
+        };
+
         // Theme Management
         const Theme = {
             init() {
@@ -200,8 +210,6 @@
                 this.renderValuation();
             },
 
-            // Old client-side DCF calculation removed - now using server-side Python calculation
-
             render(html) {
                 document.getElementById('app').innerHTML = html;
             },
@@ -261,40 +269,14 @@
             },
 
             shouldShowPhase(currentStage, targetPhase) {
-                const stageOrder = {
-                    'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
-                    'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
-                    'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
-                    'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
-                    'registration ready': 4, 'approval': 4,
-                    'approved': 5
-                };
-
-                const phaseValues = {
-                    'phaseI': 1,
-                    'phaseII': 2,
-                    'phaseIII': 3,
-                    'approval': 4
-                };
-
-                const currentStageValue = stageOrder[currentStage.toLowerCase()] ?? 0;
-                const targetPhaseValue = phaseValues[targetPhase];
-
-                // Show phase if we are currently in it or haven't reached it yet
-                return currentStageValue <= targetPhaseValue;
+                const phaseValues = { 'phaseI': 1, 'phaseII': 2, 'phaseIII': 3, 'approval': 4 };
+                const currentStageValue = STAGE_ORDER[currentStage.toLowerCase()] ?? 0;
+                return currentStageValue <= phaseValues[targetPhase];
             },
 
             renderDevelopmentTimelineSection(v) {
                 const currentStage = (v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready').toLowerCase();
-                const stageOrder = {
-                    'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
-                    'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
-                    'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
-                    'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
-                    'registration ready': 4, 'approval': 4,
-                    'approved': 5
-                };
-                const currentStageValue = stageOrder[currentStage] ?? 0;
+                const currentStageValue = STAGE_ORDER[currentStage] ?? 0;
 
                 const phases = [];
                 if (currentStageValue <= 1 && v.developmentTimeline.phaseIDuration) {
@@ -515,11 +497,11 @@
 
                     const groupRow = `
                         <tr class="stage-group-row" onclick="event.stopPropagation(); App.toggleStageExpansion(${idx})" title="Click to ${isExpanded ? 'collapse' : 'expand'} and view individual years">
-                            <td style="font-weight: 600; cursor: pointer;">
-                                <span style="display: inline-block; width: 16px; text-align: center;">${isExpanded ? '▼' : '▶'}</span>
+                            <td class="stage-group-toggle">
+                                <span class="toggle-icon">${isExpanded ? '▼' : '▶'}</span>
                                 ${yearRange}
                             </td>
-                            <td style="font-weight: 600;">${group.stage}</td>
+                            <td class="stage-group-label">${group.stage}</td>
                             <td>${this.formatMoney(group.revenue)}</td>
                             <td>${this.formatMoney(group.cogs)}</td>
                             <td>${this.formatMoney(group.opex)}</td>
@@ -549,8 +531,8 @@
 
                 return `
                     <div class="dcf-results">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-                            <h2 style="font-family: 'DM Sans', sans-serif; font-size: 2.25rem; font-weight: 700; margin: 0; letter-spacing: -0.02em; line-height: 1.1;">DCF Valuation Results</h2>
+                        <div class="dcf-header">
+                            <h2 class="dcf-title">DCF Valuation Results</h2>
                             <button class="export-btn" onclick="App.exportToCSV()"><i class="fa-solid fa-file-export"></i> Export to CSV</button>
                         </div>
 
@@ -569,8 +551,8 @@
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 1.5rem; padding: 1rem 1.25rem; background: var(--accent-bg); border-radius: 8px; border: 1px solid var(--border-primary); font-size: 0.9rem; font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.6; color: var(--text-secondary);">
-                            <strong style="font-weight: 600;"> ${postLOECompleteYear} year projection</strong> — Click any stage row to expand individual years
+                        <div class="dcf-info-box">
+                            <strong>${postLOECompleteYear} year projection</strong> — Click any stage row to expand individual years
                         </div>
 
                         <div class="dcf-table-container">
@@ -632,17 +614,8 @@
                 // Ensure phase durations exist (for backward compatibility)
                 if (!v.developmentTimeline.phaseIDuration && !v.developmentTimeline.phaseIIDuration &&
                     !v.developmentTimeline.phaseIIIDuration && !v.developmentTimeline.approvalDuration) {
-                    // Get current stage to determine which phases to show
                     const currentStage = (v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase || 'Phase I Ready').toLowerCase();
-                    const stageOrder = {
-                        'preclinical ready': 0, 'preclinical': 0, 'discovery': 0,
-                        'phase i ready': 1, 'phase i': 1, 'phase 1 ready': 1, 'phase 1': 1,
-                        'phase ii ready': 2, 'phase ii': 2, 'phase 2 ready': 2, 'phase 2': 2,
-                        'phase iii ready': 3, 'phase iii': 3, 'phase 3 ready': 3, 'phase 3': 3,
-                        'registration ready': 4, 'approval': 4,
-                        'approved': 5
-                    };
-                    const currentStageValue = stageOrder[currentStage] ?? 0;
+                    const currentStageValue = STAGE_ORDER[currentStage] ?? 0;
 
                     // Distribute the total years to approval across remaining phases
                     const rawYears = v.developmentTimeline.yearsToApproval?.value || 6;
@@ -857,7 +830,7 @@
                 let csv = 'BioBucks DCF Valuation Export\n\n';
                 csv += `Asset Name:,${v.assetOverview.assetName}\n`;
                 csv += `Therapeutic Area:,${v.assetOverview.therapeuticArea}\n`;
-                csv += `Development Phase:,${v.assetOverview.currentDevelopmentPhase}\n\n`;
+                csv += `Development Stage:,${v.assetOverview.currentDevelopmentStage || v.assetOverview.currentDevelopmentPhase}\n\n`;
 
                 csv += 'DCF Summary\n';
                 csv += `Risk-adj Net Present Value (rNPV):,$${(dcf.npv / 1000000).toFixed(2)}M\n`;
@@ -907,18 +880,6 @@
                 requestAnimationFrame(() => {
                     window.scrollTo(0, scrollPos);
                 });
-            },
-
-            renderCumulativeRisk(param) {
-                if (!param || param.value === undefined) return '';
-
-                return `
-                    <div class="param-item">
-                        <div class="param-label">Cumulative Risk Adjustment</div>
-                        <div class="param-value">${this.formatValue(param.value, param.unit)}</div>
-                        ${param.calculation ? `<div class="param-explanation">${this.escapeHtml(param.calculation)}</div>` : ''}
-                    </div>
-                `;
             },
 
             formatValue(value, unit) {

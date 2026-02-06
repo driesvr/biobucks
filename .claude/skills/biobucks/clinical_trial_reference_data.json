@@ -17,7 +17,7 @@
         "journal": "Biostatistics",
         "year": 2019,
         "url": "https://doi.org/10.1093/biostatistics/kxx069",
-        "notes": "Analysis of 406,038 clinical trial entries from 2000-2015. Used for biomarker phase-specific multipliers."
+        "notes": "Analysis of 406,038 clinical trial entries from 2000-2015. Historical reference; biomarker multipliers now derived from BIO_QLS_2021."
       },
       "ASPE_2014": {
         "title": "Examination of Clinical Trial Costs and Barriers for Drug Development",
@@ -25,22 +25,6 @@
         "year": 2014,
         "url": "https://aspe.hhs.gov/reports/examination-clinical-trial-costs-barriers-drug-development-0",
         "notes": "Comprehensive study of clinical trial costs by phase and therapeutic area"
-      },
-      "DiMasi_2016": {
-        "title": "Innovation in the pharmaceutical industry: New estimates of R&D costs",
-        "authors": "DiMasi JA, Grabowski HG, Hansen RW",
-        "journal": "Journal of Health Economics",
-        "year": 2016,
-        "url": "https://doi.org/10.1016/j.jhealeco.2016.01.012",
-        "notes": "Landmark study estimating $2.6B total development cost per approved drug"
-      },
-      "Sertkaya_2016": {
-        "title": "Key cost drivers of pharmaceutical clinical trials in the United States",
-        "authors": "Sertkaya A, Wong HH, Jessup A, Beleche T",
-        "journal": "Clinical Trials",
-        "year": 2016,
-        "url": "https://doi.org/10.1177/1740774516677887",
-        "notes": "ASPE-commissioned study on clinical trial cost drivers"
       }
     }
   },
@@ -242,20 +226,21 @@
       }
     },
 
+    "non_oncology_aggregate": {
+      "_notes": "Aggregate success rates for all non-oncology indications. From BIO_QLS_2021 Figure 7. Useful as a comparison baseline against oncology.",
+      "source": "BIO_QLS_2021",
+      "sample_sizes": {"phase_1": 2786, "phase_2": 3201, "phase_3": 1433, "nda_bla": 1129},
+      "phase_1_to_2": 0.539,
+      "phase_2_to_3": 0.312,
+      "phase_3_to_approval": 0.613,
+      "nda_bla_to_approval": 0.902,
+      "overall_loa_from_phase_1": 0.093,
+      "overall_loa_from_phase_2": 0.172,
+      "overall_loa_from_phase_3": 0.553
+    },
+
     "oncology_subcategories": {
       "_notes": "Oncology broken down by tumor type and treatment approach. From BIO_QLS_2021 Figure 7.",
-
-      "non_oncology": {
-        "source": "BIO_QLS_2021",
-        "sample_sizes": {"phase_1": 2786, "phase_2": 3201, "phase_3": 1433, "nda_bla": 1129},
-        "phase_1_to_2": 0.539,
-        "phase_2_to_3": 0.312,
-        "phase_3_to_approval": 0.613,
-        "nda_bla_to_approval": 0.902,
-        "overall_loa_from_phase_1": 0.093,
-        "overall_loa_from_phase_2": 0.172,
-        "overall_loa_from_phase_3": 0.553
-      },
 
       "oncology_all": {
         "source": "BIO_QLS_2021",
@@ -590,15 +575,21 @@
         "notes": "Biomarker benefit varies by phase: no discernible difference at Phase I (52.4% vs 52.0%). Greatest benefit at Phase II (46.3% vs 28.3%). Smaller but significant benefit at Phase III (68.2% vs 57.1%)."
       },
 
-      "phase_specific_multipliers_wong": {
-        "source": "Wong_2019",
-        "notes": "Original Wong et al. phase-specific multipliers based on 2000-2015 data. Use for adjustments when BIO data unavailable.",
-        "phase_1_to_2": 1.28,
-        "phase_2_to_3": 1.44,
-        "phase_3_to_approval": 1.02,
-        "overall_loa_multiplier": 1.87,
+      "phase_specific_multipliers": {
+        "source": "BIO_QLS_2021",
+        "notes": "Derived from BIO/QLS 2011-2020 biomarker impact data (767 transitions with biomarkers vs 11,961 without). Multipliers calculated as ratio of with-biomarker to without-biomarker success rates.",
+        "phase_1_to_2": 1.01,
+        "phase_2_to_3": 1.64,
+        "phase_3_to_approval": 1.19,
+        "overall_loa_multiplier": 2.09,
+        "derivation": {
+          "phase_1_to_2": "52.4% / 52.0% = 1.008, rounded to 1.01",
+          "phase_2_to_3": "46.3% / 28.3% = 1.636, rounded to 1.64",
+          "phase_3_to_approval": "68.2% / 57.1% = 1.194, rounded to 1.19",
+          "overall_loa": "15.9% / 7.6% = 2.092, rounded to 2.09"
+        },
         "application_method": "Apply multipliers to baseline therapeutic area rates. For validated biomarkers (e.g., HER2+, EGFR+, PD-L1+), use full multipliers. For exploratory biomarkers, use 50-75% of effect.",
-        "data_limitation": "Based on oncology data only. Generalizability to other therapeutic areas is uncertain."
+        "data_limitation": "Based primarily on oncology trials (majority of biomarker-stratified programs). Generalizability to other therapeutic areas is uncertain."
       }
     }
   },
@@ -685,7 +676,7 @@
 
   "clinical_trial_costs": {
     "_description": "Clinical trial costs by phase and therapeutic area in USD millions (unless otherwise noted)",
-    "_source_primary": "ASPE_2014, DiMasi_2016",
+    "_source_primary": "ASPE_2014",
     "_notes": "Costs vary significantly based on trial design, geography, patient population, and endpoints. ASPE 2014 costs should be inflation-adjusted (~89% increase to 2026 dollars using 5% annual inflation).",
 
     "average_costs_by_phase": {
@@ -813,8 +804,12 @@
       "therapeutic_area": "oncology",
       "phase_transition_probabilities": {
         "source": "BIO_QLS_2021",
+        "phase_1_to_2": null,
+        "phase_2_to_3": null,
+        "phase_3_to_approval": null,
         "overall_loa_from_phase_1": 0.011,
-        "notes": "Minimum LOA in oncology (1.1%, n=275). Extremely challenging indication."
+        "notes": "Minimum LOA in oncology (1.1%, n=275). Extremely challenging indication. Phase-by-phase breakdown not available from source; use oncology solid_tumor rates as proxy but note that cumulative PoS should be anchored to the 1.1% overall LOA.",
+        "fallback_rates": "oncology.solid_tumors"
       }
     },
 
@@ -822,8 +817,12 @@
       "therapeutic_area": "oncology",
       "phase_transition_probabilities": {
         "source": "BIO_QLS_2021",
+        "phase_1_to_2": null,
+        "phase_2_to_3": null,
+        "phase_3_to_approval": null,
         "overall_loa_from_phase_1": 0.152,
-        "notes": "Maximum LOA in oncology (15.2%, n=33). Small sample size."
+        "notes": "Maximum LOA in oncology (15.2%, n=33). Small sample size; treat with caution. Phase-by-phase breakdown not available from source; use oncology base rates as proxy.",
+        "fallback_rates": "oncology"
       }
     },
 
@@ -831,8 +830,12 @@
       "therapeutic_area": "oncology",
       "phase_transition_probabilities": {
         "source": "BIO_QLS_2021 (Part 2)",
+        "phase_1_to_2": null,
+        "phase_2_to_3": null,
+        "phase_3_to_approval": null,
         "overall_loa_from_phase_1": 0.239,
-        "notes": "PD-1/PD-L1 immunotherapies tremendously successful from Phase I (23.9%, n=71). Other immunotherapies much less successful (1.9%, n=945)."
+        "notes": "PD-1/PD-L1 immunotherapies tremendously successful from Phase I (23.9%, n=71). Other immunotherapies much less successful (1.9%, n=945). Phase-by-phase breakdown not available from source; use immuno_oncology subcategory rates as proxy.",
+        "fallback_rates": "oncology_subcategories.immuno_oncology"
       }
     },
 
@@ -840,9 +843,13 @@
       "therapeutic_area": "hematology",
       "phase_transition_probabilities": {
         "source": "BIO_QLS_2021",
+        "phase_1_to_2": null,
         "phase_2_to_3": 1.00,
+        "phase_3_to_approval": null,
+        "overall_loa_from_phase_1": null,
         "overall_success": "32 of 34 phase transitions successful",
-        "notes": "Extremely well-characterized biology. 100% Phase II success rate (n=6)."
+        "notes": "Extremely well-characterized biology. 100% Phase II success rate (n=6). Only Phase II→III rate available from source; use hematology rates as proxy for other phases.",
+        "fallback_rates": "hematology"
       }
     }
   },

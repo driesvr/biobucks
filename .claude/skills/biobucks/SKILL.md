@@ -15,8 +15,8 @@ This skill includes a curated reference dataset with clinical phase transition p
 **File**: `clinical_trial_reference_data.json` (in the same directory as this SKILL.md)
 
 **Contents**:
-- Phase transition probabilities by therapeutic area (12 areas) from BIO/QLS Advisors and Wong et al.
-- Clinical trial costs by phase and therapeutic area from ASPE/HHS and DiMasi et al.
+- Phase transition probabilities by therapeutic area (12 areas) from BIO/QLS Advisors (2011-2020)
+- Clinical trial costs by phase and therapeutic area from ASPE/HHS
 - Per-patient costs by therapeutic area and modality
 - Indication-specific data for high-value indications (Alzheimer's, breast cancer, NSCLC, T2D, RA, MS, etc.)
 - Adjustment factors for biomarkers, orphan drugs, breakthrough designations, etc.
@@ -50,20 +50,20 @@ Collect the following details about the asset (ask if not provided):
 
 Ask: "Does this clinical program use biomarkers for patient selection or stratification?"
 
-Explain why this matters: According to Wong et al. (2019) analysis of clinical trials, biomarker-driven patient selection improves overall likelihood of approval from 5.5% to 10.3% (**1.87x improvement**). However, this improvement is **phase-specific and non-uniform**:
+Explain why this matters: According to BIO/QLS Advisors (2021) analysis of 12,728 clinical phase transitions (2011-2020), biomarker-driven patient selection improves overall likelihood of approval from 7.6% to 15.9% (**2.09x improvement**). However, this improvement is **phase-specific and non-uniform**:
 
 **Phase-specific biomarker effects:**
-- **Phase I→II**: 34.7% → 44.5% (1.28x multiplier)
-- **Phase II→III**: 26.8% → 38.6% (1.44x multiplier)
-- **Phase III→Approval**: 59.0% → 60.2% (1.02x multiplier)
+- **Phase I→II**: 52.0% → 52.4% (1.01x multiplier — essentially no difference)
+- **Phase II→III**: 28.3% → 46.3% (1.64x multiplier — largest benefit)
+- **Phase III→Approval**: 57.1% → 68.2% (1.19x multiplier)
 
-**Key insight**: Biomarker benefit is most significant in early phases (I and II), with minimal impact in Phase III.
+**Key insight**: Biomarker benefit is overwhelmingly concentrated in Phase II (1.64x), with meaningful Phase III benefit (1.19x), and negligible Phase I impact.
 
-**Important limitation**: This data is based entirely on oncology trials. Generalizability to other therapeutic areas is uncertain.
+**Important limitation**: Biomarker-stratified programs are heavily skewed toward oncology. Generalizability to other therapeutic areas is uncertain.
 
 Biomarker options to present:
-- **Yes - Validated biomarker**: A well-established biomarker with regulatory acceptance (e.g., HER2 for breast cancer, PD-L1 for immunotherapy, EGFR mutations in NSCLC). Apply full phase-specific multipliers: 1.28x (Phase I→II), 1.44x (Phase II→III), 1.02x (Phase III→Approval).
-- **Yes - Exploratory biomarker**: Using a biomarker for enrichment but not yet fully validated. Apply 50-75% of the full multiplier effect: ~1.14-1.21x (Phase I→II), ~1.22-1.33x (Phase II→III), ~1.01-1.015x (Phase III→Approval).
+- **Yes - Validated biomarker**: A well-established biomarker with regulatory acceptance (e.g., HER2 for breast cancer, PD-L1 for immunotherapy, EGFR mutations in NSCLC). Apply full phase-specific multipliers: 1.01x (Phase I→II), 1.64x (Phase II→III), 1.19x (Phase III→Approval).
+- **Yes - Exploratory biomarker**: Using a biomarker for enrichment but not yet fully validated. Apply 50-75% of the full multiplier effect: ~1.01x (Phase I→II), ~1.32-1.48x (Phase II→III), ~1.10-1.14x (Phase III→Approval).
 - **No - No biomarker selection**: Broad patient population without biomarker stratification. Use baseline success rates (no adjustment).
 - **Unknown/TBD**: Biomarker strategy not yet determined. Use baseline rates but note this as an opportunity for improvement.
 
@@ -197,24 +197,24 @@ Research phase-specific parameters for each remaining phase. **IMPORTANT**: Rese
 
 ### Step 4: Research Clinical Trial Costs and Probability of Success
 
-**FIRST**: Load the reference data file `clinical_trial_reference_data.json` to get baseline values for the therapeutic area and indication. Use the Read tool to access the file at the same path as this SKILL.md. If the file is not accessible, continue with web search using the sources mentioned in the reference data metadata (BIO/QLS Advisors, Wong et al., ASPE/HHS, DiMasi et al.) as baseline sources. If the file is not accessible, continue with web search using baseline values from the sources mentioned in the reference data metadata.
+**FIRST**: Load the reference data file `clinical_trial_reference_data.json` to get baseline values for the therapeutic area and indication. Use the Read tool to access the file at the same path as this SKILL.md. If the file is not accessible, continue with web search using the sources mentioned in the reference data metadata (BIO/QLS Advisors, ASPE/HHS) as baseline sources.
 
 The reference data contains:
 - `phase_transition_probabilities.by_therapeutic_area` - baseline PoS by therapeutic area
-- `phase_transition_probabilities.by_modality` - PoS adjustments by drug type
+- `phase_transition_probabilities.by_modality_detailed` - PoS adjustments by drug type
 - `clinical_trial_costs.per_patient_costs_by_therapeutic_area` - cost benchmarks
-- `clinical_trial_costs.total_trial_costs_by_therapeutic_area` - total trial costs
+- `clinical_trial_costs.by_modality_cost_multipliers` - cost multipliers by drug modality
 - `indication_specific_data` - detailed data for specific indications (Alzheimer's, breast cancer, NSCLC, T2D, etc.)
 - `adjustments_and_factors` - multipliers for biomarkers, orphan drugs, breakthrough designations
 
 **THEN**: Search for more specific or recent data to refine the baseline estimates.
 
 12. **Clinical Trial Costs by Phase**
-   - **Start with reference data**: Look up costs for the therapeutic area in `clinical_trial_costs.per_patient_costs_by_therapeutic_area` and `clinical_trial_costs.total_trial_costs_by_therapeutic_area`
+   - **Start with reference data**: Look up costs for the therapeutic area in `clinical_trial_costs.per_patient_costs_by_therapeutic_area` and `clinical_trial_costs.average_costs_by_phase`
    - **Search for specifics**: "clinical trial cost [therapeutic area] [current year]", "[modality] trial costs", "cost per patient [indication] trial"
    - Look for: Tufts CSDD reports, Pharma Intelligence, Evaluate Pharma, recent biotech financial disclosures
    - Consider: Patient enrollment numbers, trial duration, endpoint complexity, rare vs. common disease
-   - **Apply modality adjustments**: Cell therapy and gene therapy trials cost significantly more (see `oncology_specific_costs.by_modality` in reference data)
+   - **Apply modality adjustments**: Cell therapy and gene therapy trials cost significantly more (see `clinical_trial_costs.by_modality_cost_multipliers` in reference data)
    - **IMPORTANT**: Research costs for the CURRENT phase AND all future phases. Remember that "Phase I Ready" means at the BEGINNING of Phase I:
      - If current stage is "Phase I Ready", research Phase I, Phase II, Phase III, and Approval costs
      - If current stage is "Phase II Ready", research Phase II, Phase III, and Approval costs
@@ -230,12 +230,12 @@ The reference data contains:
 13. **Probability of Success (PoS) by Phase**
    - **Start with reference data**: Look up baseline PoS in `phase_transition_probabilities.by_therapeutic_area.[area]`
    - **Check for indication-specific data**: Look in `indication_specific_data` for the specific indication if available
-   - **Apply biomarker adjustment (phase-specific)**: If the user confirmed biomarker-driven selection (from Step 1.5), apply **phase-specific multipliers** from `adjustments_and_factors.biomarker_driven_trial.phase_specific_multipliers`:
-     - **Phase I→II**: Multiply baseline PoS by 1.28 (for validated biomarkers) or 1.14-1.21 (for exploratory biomarkers)
-     - **Phase II→III**: Multiply baseline PoS by 1.44 (for validated biomarkers) or 1.22-1.33 (for exploratory biomarkers)
-     - **Phase III→Approval**: Multiply baseline PoS by 1.02 (for validated biomarkers) or 1.01-1.015 (for exploratory biomarkers)
-     - **IMPORTANT**: Do NOT apply a uniform 1.87x multiplier to all phases. The biomarker benefit varies by phase and is concentrated in early phases.
-     - **Example calculation**: If baseline oncology Phase II→III is 32.7%, with validated biomarker it becomes 32.7% × 1.44 = 47.1%
+   - **Apply biomarker adjustment (phase-specific)**: If the user confirmed biomarker-driven selection (from Step 1.5), apply **phase-specific multipliers** from `biomarker_impact.phase_specific_multipliers`:
+     - **Phase I→II**: Multiply baseline PoS by 1.01 (for validated biomarkers) or ~1.01 (for exploratory biomarkers) — essentially no adjustment
+     - **Phase II→III**: Multiply baseline PoS by 1.64 (for validated biomarkers) or 1.32-1.48 (for exploratory biomarkers) — largest benefit
+     - **Phase III→Approval**: Multiply baseline PoS by 1.19 (for validated biomarkers) or 1.10-1.14 (for exploratory biomarkers)
+     - **IMPORTANT**: Do NOT apply a uniform 2.09x multiplier to all phases. The biomarker benefit varies by phase and is overwhelmingly concentrated in Phase II.
+     - **Example calculation**: If baseline oncology Phase II→III is 24.6%, with validated biomarker it becomes 24.6% × 1.64 = 40.3%
      - **Cap at 100%**: Ensure no phase PoS exceeds 100% after adjustment (use min(adjusted_value, 100%))
    - **Apply other adjustments**: Check `adjustments_and_factors` for orphan drug, breakthrough designation, first-in-class, or validated target multipliers
    - **Search for specifics**: "phase [X] success rate [therapeutic area]", "clinical trial success rates [indication]", "FDA approval probability"
@@ -247,18 +247,18 @@ The reference data contains:
      - If current stage is "Phase III Ready", research Phase III and Approval PoS
      - If current stage is "Registration Ready", research Approval PoS only
      - If current stage is "Approved", skip all PoS parameters (already 100% successful)
-   - Reference baseline ranges (from Wong et al. 2019, all indications):
-     - Phase I→II: 66.4%
-     - Phase II→III: 58.3% (but varies widely: oncology ~33%, vaccines ~58%)
-     - Phase III→Approval: 59.0% (oncology ~35%, infectious disease ~75%)
-     - Overall LOA from Phase I: 13.8% (oncology 3.4%, vaccines 33.4%)
+   - Reference baseline ranges (from BIO/QLS Advisors 2021, all indications 2011-2020):
+     - Phase I→II: 52.0%
+     - Phase II→III: 28.9% (varies widely: oncology ~24.6%, hematology ~48.1%)
+     - Phase III→Approval: 57.8% (oncology ~47.7%, hematology ~76.8%)
+     - Overall LOA from Phase I: 7.9% (oncology 5.3%, hematology 23.9%)
    - **Important**: Cumulative risk adjustment = product of current + all future phase PoS values
    - Express as: Percentage per phase
    - **Cite both sources**: Reference the baseline from reference data AND any indication-specific data from web search
 
 ### Step 5: Research Financial Parameters
 
-13. **Cost of Goods Sold (COGS)**
+14. **Cost of Goods Sold (COGS)**
    - Search: "[modality] manufacturing cost", "COGS as percent of revenue [therapeutic area]"
    - Focus on US market costs and suppliers
    - Typical ranges:
@@ -267,19 +267,19 @@ The reference data contains:
      - Gene/cell therapy: 25-40% of revenue
    - Express as: Percentage of revenue (e.g., "20% COGS")
 
-14. **Operating Expenses (OpEx)**
+15. **Operating Expenses (OpEx)**
     - Search: "biotech SG&A expenses US", "pharma operating margin [therapeutic area] United States"
     - Includes: Sales & marketing, general & administrative
     - Typical: 30-50% of revenue (higher for commercial-stage, lower for rare disease/orphan)
     - Express as: Percentage of revenue (e.g., "40% OpEx")
 
-15. **Tax Rate**
+16. **Tax Rate**
     - Search: "US corporate tax rate [current year]", "biotech effective tax rate United States"
     - US federal: 21%, consider state taxes (average 5-7%)
     - Typical effective rate: 25-30%
     - Express as: Percentage (e.g., "28% tax rate")
 
-16. **Discount Rate (WACC)**
+17. **Discount Rate (WACC)**
     - Search: "biotech WACC [current year] United States", "pharma weighted average cost of capital US"
     - Use a standard discount rate that does NOT account for development phase risk
     - Typical range: 8-12% (standard corporate WACC for US biotech/pharma)
@@ -302,12 +302,12 @@ Once all research is complete, output the DCF parameters in this **exact** JSON 
       "biomarkerType": "validated | exploratory | none | unknown",
       "biomarkerDescription": "string (e.g., 'HER2+ patient selection', 'PD-L1 expression ≥50%')",
       "phaseSpecificMultipliers": {
-        "phase_1_to_2": "number - Use 1.28 (validated), 1.14-1.21 (exploratory), or 1.0 (none/unknown)",
-        "phase_2_to_3": "number - Use 1.44 (validated), 1.22-1.33 (exploratory), or 1.0 (none/unknown)",
-        "phase_3_to_approval": "number - Use 1.02 (validated), 1.01-1.015 (exploratory), or 1.0 (none/unknown)"
+        "phase_1_to_2": "number - Use 1.01 (validated), ~1.01 (exploratory), or 1.0 (none/unknown)",
+        "phase_2_to_3": "number - Use 1.64 (validated), 1.32-1.48 (exploratory), or 1.0 (none/unknown)",
+        "phase_3_to_approval": "number - Use 1.19 (validated), 1.10-1.14 (exploratory), or 1.0 (none/unknown)"
       },
-      "overallLOAImprovement": "number - Overall improvement factor: 1.87 (validated), ~1.4-1.6 (exploratory), or 1.0 (none/unknown)",
-      "notes": "string - Explain biomarker strategy and phase-specific impact on PoS. Note that biomarker benefit is most significant in Phases 1 and 2, with minimal impact in Phase 3."
+      "overallLOAImprovement": "number - Overall improvement factor: 2.09 (validated), ~1.5-1.8 (exploratory), or 1.0 (none/unknown)",
+      "notes": "string - Explain biomarker strategy and phase-specific impact on PoS. Note that biomarker benefit is overwhelmingly concentrated in Phase II (1.64x), with meaningful Phase III benefit (1.19x) and negligible Phase I impact."
     }
   },
   "marketParameters": {
@@ -477,11 +477,11 @@ Once all research is complete, output the DCF parameters in this **exact** JSON 
     "biomarkerAdjustmentApplied": {
       "applied": "boolean",
       "phaseSpecificMultipliers": {
-        "phase_1_to_2": "number - Actual multiplier applied (1.28 for validated, 1.14-1.21 for exploratory, 1.0 for none)",
-        "phase_2_to_3": "number - Actual multiplier applied (1.44 for validated, 1.22-1.33 for exploratory, 1.0 for none)",
-        "phase_3_to_approval": "number - Actual multiplier applied (1.02 for validated, 1.01-1.015 for exploratory, 1.0 for none)"
+        "phase_1_to_2": "number - Actual multiplier applied (1.01 for validated, ~1.01 for exploratory, 1.0 for none)",
+        "phase_2_to_3": "number - Actual multiplier applied (1.64 for validated, 1.32-1.48 for exploratory, 1.0 for none)",
+        "phase_3_to_approval": "number - Actual multiplier applied (1.19 for validated, 1.10-1.14 for exploratory, 1.0 for none)"
       },
-      "notes": "string - Example: 'Validated HER2 biomarker - phase-specific multipliers applied: 1.28x (Phase I→II), 1.44x (Phase II→III), 1.02x (Phase III→Approval). Biomarker benefit concentrated in early phases.'"
+      "notes": "string - Example: 'Validated HER2 biomarker - phase-specific multipliers applied: 1.01x (Phase I→II), 1.64x (Phase II→III), 1.19x (Phase III→Approval). Biomarker benefit concentrated in Phase II.'"
     },
     "referenceDataSource": {
       "baselineSource": "clinical_trial_reference_data.json",
@@ -571,12 +571,12 @@ After saving the valuation file and providing guidance, automatically launch the
 
 ## Important Research Guidelines
 
-- **Start with reference data**: Always load `clinical_trial_reference_data.json` first to get well-sourced baseline values for PoS and trial costs. The reference data includes sources from BIO/QLS Advisors, Wong et al. (Biostatistics), ASPE/HHS, and DiMasi et al.
+- **Start with reference data**: Always load `clinical_trial_reference_data.json` first to get well-sourced baseline values for PoS and trial costs. The reference data includes sources from BIO/QLS Advisors (2011-2020) and ASPE/HHS.
 - **Then search for specifics**: Web search should refine and update the baseline values with indication-specific, modality-specific, or more recent data.
 - **Prioritize recent sources** (within last 2 years) for market data and pricing
 - **Use authoritative sources**: FDA, EMA, WHO, CDC, patient advocacy groups, peer-reviewed journals, established pharma analytics firms (Evaluate Pharma, IQVIA, etc.)
 - **CRITICAL - Specific URLs required**: Every source URL must link directly to the exact report, PDF, data page, or press release containing the cited data. Do NOT use homepage URLs or general site links. Use WebFetch to verify the URL contains the data before citing it.
-- **Apply biomarker adjustments correctly**: If the asset has a validated biomarker strategy, apply phase-specific multipliers documented in the reference data (Wong et al. 2019): 1.28x for Phase I→II, 1.44x for Phase II→III, 1.02x for Phase III→Approval. Do NOT apply a uniform 1.87x to all phases.
+- **Apply biomarker adjustments correctly**: If the asset has a validated biomarker strategy, apply phase-specific multipliers documented in the reference data (BIO/QLS Advisors 2021): 1.01x for Phase I→II, 1.64x for Phase II→III, 1.19x for Phase III→Approval. Do NOT apply a uniform 2.09x to all phases.
 - **Be conservative with estimates**: When ranges exist, explain the rationale for your chosen value
 - **Adjust for asset-specific factors**: Orphan drugs, first-in-class therapies, and breakthrough designations warrant different assumptions than crowded markets - see `adjustments_and_factors` in reference data
 - **Show calculation work**: For derived values (like cumulative PoS), show the formula including any biomarker or other adjustments applied
